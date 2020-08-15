@@ -1,9 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Specialized;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-
 
 namespace mimij
 {
@@ -11,25 +12,38 @@ namespace mimij
     {
         static void Main(string[] args)
         {
-            Console.WriteLine("Escriba el código");
-            //ignorar espacios en blanco, saltos de línea, y tabs
-            var frase = Console.ReadLine();
-            var delimitadores = new char[]{ ' ', '\t', '\n' };
-            var Split = frase.Split(delimitadores);
-            var resultL = new List<string>();
-            for(int i = 0; i < Split.Length; i++)
+            var countLinea = 0;
+            Console.WriteLine("Arrastre el archivo de entrada a consola");
+            var path = Console.ReadLine().Trim('"');
+            var frase = string.Empty;
+            using (var sr = new StreamReader(path))
             {
-                if (Split[i] != string.Empty)
+                while ((frase = sr.ReadLine()) != null)
                 {
-                    resultL.Add(Split[i]);
+                    countLinea++;
+                    var countColumna = 0;
+                    var lexema = string.Empty;
+                    var aux = string.Empty;
+                    foreach (char caracter in frase)
+                    {
+                        countColumna++;
+                        lexema += caracter;
+                        var error = Validation.validar(lexema);
+                        if (!error)
+                        {
+                            var paths = Directory.GetCurrentDirectory();
+                            Validation.fileWriting(paths, aux, countLinea, countColumna,countColumna, string.Empty);
+                            lexema = string.Empty;
+                            aux = string.Empty;
+                        }
+                        else
+                        {
+                            aux += caracter;
+                        }
+                    }
                 }
             }
-            //empezar el proceso de validación por lexema
-            var process = new Validation();
-            foreach(string lexema in resultL)
-            {
-                process.validar(lexema);
-            }
+            Console.ReadKey();
         }
     }
 }
