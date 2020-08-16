@@ -15,6 +15,7 @@ namespace mimij
             var countLinea = 0;
             Console.WriteLine("Arrastre el archivo de entrada a consola");
             var path = Console.ReadLine().Trim('"');
+            var txtName = Path.GetFileNameWithoutExtension(path);
             var frase = string.Empty;
             using (var sr = new StreamReader(path))
             {
@@ -37,7 +38,7 @@ namespace mimij
                                     if (lexema.Length > 1)
                                     {
                                         lexema = frase.Substring(start, i - start - 1);
-                                        //Validation.fileWriting(lexema, countLinea, start, i, tipo);
+                                        //Validation.fileWriting(txtName, lexema, countLinea, start, i, tipo);
                                     }
                                     lexema = string.Empty;
                                     start = i;
@@ -52,7 +53,7 @@ namespace mimij
                                             lexema = lexema.Substring(0, lexema.Length - 1);
                                             i--;
                                         }
-                                        //Validation.fileWriting(lexema, countLinea, start, i, tipo);
+                                        //Validation.fileWriting(txtName, lexema, countLinea, start, i, tipo);
                                         start = i;
                                         lexema = string.Empty;
                                     }
@@ -63,7 +64,7 @@ namespace mimij
                         if (lexema.Length != 0)
                         {
                             var tipo = Validation.validar(lexema);
-                            //Validation.fileWriting(lexema, countLinea, frase.Length - lexema.Length, frase.Length, tipo);
+                            //Validation.fileWriting(txtName, lexema, countLinea, frase.Length - lexema.Length, frase.Length, tipo);
                             lexema = string.Empty;
                         }
                     }
