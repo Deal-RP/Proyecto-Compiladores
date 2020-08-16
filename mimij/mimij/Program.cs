@@ -21,24 +21,50 @@ namespace mimij
                 while ((frase = sr.ReadLine()) != null)
                 {
                     countLinea++;
-                    var countColumna = 0;
-                    var lexema = string.Empty;
-                    var aux = string.Empty;
-                    foreach (char caracter in frase)
+                    if (frase != "")
                     {
-                        countColumna++;
-                        lexema += caracter;
-                        var error = Validation.validar(lexema);
-                        if (!error)
+                        var start = 0;
+                        var i = 1;
+                        var lexema = string.Empty;
+                        while (start != frase.Length && i < frase.Length + 1)
                         {
-                            var paths = Directory.GetCurrentDirectory();
-                            Validation.fileWriting(paths, aux, countLinea, countColumna,countColumna, string.Empty);
-                            lexema = string.Empty;
-                            aux = string.Empty;
+                            lexema = frase.Substring(start, i - start);
+                            var tipo = Validation.validar(lexema);
+                            if (tipo == -1)
+                            {
+                                if (frase[i - 1] == '\t' || frase[i - 1] == ' ')
+                                {
+                                    if (lexema.Length > 1)
+                                    {
+                                        lexema = frase.Substring(start, i - start - 1);
+                                        //Validation.fileWriting(lexema, countLinea, start, i, tipo);
+                                    }
+                                    lexema = string.Empty;
+                                    start = i;
+                                }
+                                else
+                                {
+                                    if (lexema.Length > 0)
+                                    {
+                                        tipo = Validation.validar(lexema.Substring(0, lexema.Length - 1));
+                                        if (tipo != -1)
+                                        {
+                                            lexema = lexema.Substring(0, lexema.Length - 1);
+                                            i--;
+                                        }
+                                        //Validation.fileWriting(lexema, countLinea, start, i, tipo);
+                                        start = i;
+                                        lexema = string.Empty;
+                                    }
+                                }
+                            }
+                            i++;
                         }
-                        else
+                        if (lexema.Length != 0)
                         {
-                            aux += caracter;
+                            var tipo = Validation.validar(lexema);
+                            //Validation.fileWriting(lexema, countLinea, frase.Length - lexema.Length, frase.Length, tipo);
+                            lexema = string.Empty;
                         }
                     }
                 }
