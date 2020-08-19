@@ -22,6 +22,7 @@ namespace mimij
             var frase = string.Empty;
             using (var sr = new StreamReader(path))
             {
+                var comentado = false;
                 while ((frase = sr.ReadLine()) != null)
                 {
                     countLinea++;
@@ -36,7 +37,12 @@ namespace mimij
                             lexema = frase.Substring(start, i - start);
                             var tipo = Validation.identificar(lexema);
 
-                            if (tipo == -1)
+                            if (comentado && lexema.Length > 1 && lexema.Substring(lexema.Length - 2, 2) == "*/")
+                            {
+                                comentado = false;
+                                lexema = string.Empty;
+                            }
+                            else if (!comentado && tipo == -1)
                             {
                                 var auxTipo = Validation.identificar(frase.Substring(start, i - start - 1));
 
@@ -44,17 +50,6 @@ namespace mimij
                                 {
                                     case -1:
                                         //CARACTER INVALIDO
-                                        break;
-                                    case 2:
-                                        if (frase[i - 1] == '\t' || frase[i - 1] == ' ' || Validation.identificar(frase[i - 1].ToString()) == 7)
-                                        {
-                                            lexema = frase.Substring(start, i - start - 1);
-                                            if (frase[i - 1] != '\t' && frase[i - 1] != ' ') i--;
-                                        }
-                                        else
-                                        {
-                                            //ERROR
-                                        }
                                         break;
                                     case 4:
                                         //NUMERO HEXADECIMAL INCOMPLETO
@@ -64,6 +59,9 @@ namespace mimij
                                         break;
                                     case 10:
                                         //STRING INCOMPLETO
+                                        break;
+                                    case 12:
+                                        comentado = true;
                                         break;
                                     default:
                                         lexema = frase.Substring(start, i - start - 1);
@@ -77,7 +75,7 @@ namespace mimij
                             i++;
                         }
 
-                        if (lexema.Length != 0)
+                        if (!comentado && lexema.Length != 0)
                         {
                             var tipo = Validation.identificar(lexema);
                             switch (tipo)
@@ -94,6 +92,9 @@ namespace mimij
                                 case 10:
                                     //STRING INCOMPLETO
                                     break;
+                                case 12:
+                                    comentado = true;
+                                    break;
                                 default:
                                     lexema = frase.Substring(start, i - start - 1);
                                     break;
@@ -102,6 +103,11 @@ namespace mimij
                             lexema = string.Empty;
                         }
                     }
+                }
+                if (comentado)
+                {
+                    //ERROR COMENTARIO DE PARRAFO NO CERRADO
+                    //Validation.fileWriting(txtName, lexema, countLinea, frase.Length - lexema.Length, frase.Length, tipo);
                 }
             }
             Console.ReadKey();
