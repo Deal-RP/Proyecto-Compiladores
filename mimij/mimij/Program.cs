@@ -31,12 +31,10 @@ namespace mimij
                         var start = 0;
                         var i = 1;
                         var lexema = string.Empty;
-
                         while (start != frase.Length && i < frase.Length + 1)
                         {
                             lexema = frase.Substring(start, i - start);
                             var tipo = Validation.identificar(lexema);
-
                             if (comentado && lexema.Length > 1 && lexema.Substring(lexema.Length - 2, 2) == "*/")
                             {
                                 comentado = false;
@@ -44,62 +42,13 @@ namespace mimij
                             }
                             else if (!comentado && tipo == -1)
                             {
-                                var auxTipo = Validation.identificar(frase.Substring(start, i - start - 1));
-
-                                switch (auxTipo)
-                                {
-                                    case -1:
-                                        //CARACTER INVALIDO
-                                        break;
-                                    case 4:
-                                        //NUMERO HEXADECIMAL INCOMPLETO
-                                        break;
-                                    case 6:
-                                        //DOUBLE INCOMPLETO
-                                        break;
-                                    case 10:
-                                        //STRING INCOMPLETO
-                                        break;
-                                    case 12:
-                                        comentado = true;
-                                        break;
-                                    default:
-                                        lexema = frase.Substring(start, i - start - 1);
-                                        if (frase[i - 1] != '\t' && frase[i - 1] != ' ') i--;
-                                        lexema = string.Empty;
-                                        break;
-                                }
-                                start = i;
-                                //Validation.fileWriting(txtName, lexema, countLinea, start, i, auxTipo);
+                                start = Validation.validation(txtName,countLinea,frase,ref lexema,start,ref i,ref comentado);
                             }
                             i++;
                         }
-
                         if (!comentado && lexema.Length != 0)
                         {
-                            var tipo = Validation.identificar(lexema);
-                            switch (tipo)
-                            {
-                                case -1:
-                                    //CARACTER INVALIDO
-                                    break;
-                                case 4:
-                                    //NUMERO HEXADECIMAL INCOMPLETO
-                                    break;
-                                case 6:
-                                    //DOUBLE INCOMPLETO
-                                    break;
-                                case 10:
-                                    //STRING INCOMPLETO
-                                    break;
-                                case 12:
-                                    comentado = true;
-                                    break;
-                                default:
-                                    lexema = frase.Substring(start, i - start - 1);
-                                    break;
-                            }
-                            //Validation.fileWriting(txtName, lexema, countLinea, frase.Length - lexema.Length, frase.Length, tipo);
+                            Validation.validation(txtName,countLinea,frase, ref lexema, start, ref i, ref comentado);
                             lexema = string.Empty;
                         }
                     }
