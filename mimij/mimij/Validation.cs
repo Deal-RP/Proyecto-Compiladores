@@ -111,7 +111,8 @@ namespace mimij
                 (tipo == -1 || tipo == 10|tipo==11) ?
                 $"*** Error line {line}. *** Unrecognized: '{name}'" : (tipo == 12)?
                 $"*** Error line {line}. *** Missing char: "+'"':(tipo ==9)?
-                 $"*** Error. *** EOF:"
+                $"*** Error. *** EOF:":(tipo == 7&&name.Contains('\0'))?
+                $"*** Error line {line}. *** Invalid char :" + '\0'
                 : $"{name}\t\tline {line} cols {columnFirst + 1}-{columnLast + 1} is {typesTokens[tipo]}";
             using (var writer = new StreamWriter(Path.Combine(path, $"{txtName}.out"), append: true))
             {
