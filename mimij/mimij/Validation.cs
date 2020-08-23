@@ -108,9 +108,10 @@ namespace mimij
             };
             var path = Directory.GetCurrentDirectory();
             var escritura =
-                (tipo == -1 || tipo == 10|tipo==11||tipo == 9) ?
+                (tipo == -1 || tipo == 10|tipo==11) ?
                 $"*** Error line {line}. *** Unrecognized: '{name}'" : (tipo == 12)?
-                $"*** Error line {line}. *** Missing char: "+'"'               
+                $"*** Error line {line}. *** Missing char: "+'"':(tipo ==9)?
+                 $"*** Error. *** EOF:"
                 : $"{name}\t\tline {line} cols {columnFirst + 1}-{columnLast + 1} is {typesTokens[tipo]}";
             using (var writer = new StreamWriter(Path.Combine(path, $"{txtName}.out"), append: true))
             {

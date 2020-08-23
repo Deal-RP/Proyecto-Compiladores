@@ -35,7 +35,13 @@ namespace mimij
                         {
                             lexema = frase.Substring(start, i - start);
                             var tipo = Validation.identificar(lexema);
-                            if (comentado && lexema.Length > 1 && lexema.Substring(lexema.Length - 2, 2) == "*/")
+                            if (tipo == 0)
+                            {
+                                Validation.fileWriting(txtName, lexema, countLinea, start, i, tipo);
+                                lexema = string.Empty;
+                                start = i;
+                            }
+                            else if (comentado && lexema.Length > 1 && lexema.Substring(lexema.Length - 2, 2) == "*/")
                             {
                                 comentado = false;
                                 lexema = string.Empty;
@@ -56,7 +62,7 @@ namespace mimij
                 if (comentado)
                 {
                     //ERROR COMENTARIO DE PARRAFO NO CERRADO
-                    //Validation.fileWriting(txtName, lexema, countLinea, frase.Length - lexema.Length, frase.Length, tipo);
+                    Validation.fileWriting(txtName, "EOF", 0, 0, 0, 9);
                 }
             }
             Console.ReadKey();
