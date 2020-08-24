@@ -1,13 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Collections.Specialized;
 using System.IO;
-using System.Linq;
-using System.Net.Sockets;
-using System.Security.Cryptography.X509Certificates;
-using System.Text;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 
 namespace mimij
 {
@@ -19,6 +11,10 @@ namespace mimij
             Console.WriteLine("Arrastre el archivo de entrada a consola");
             var path = Console.ReadLine().Trim('"');
             var txtName = Path.GetFileNameWithoutExtension(path);
+            if (File.Exists(txtName + ".out"))
+            {
+                File.Delete(txtName + ".out");
+            }
             var frase = string.Empty;
             using (var sr = new StreamReader(path))
             {
@@ -37,7 +33,12 @@ namespace mimij
                             var tipo = Validation.identificar(lexema);
                             if (tipo == 0)
                             {
-                                Validation.fileWriting(txtName, lexema, countLinea, start, i, tipo);
+                                Validation.fileWriting(txtName, lexema, countLinea, start, tipo);
+                                lexema = string.Empty;
+                                start = i;
+                            }
+                            else if (lexema == " ")
+                            {
                                 lexema = string.Empty;
                                 start = i;
                             }
@@ -48,13 +49,13 @@ namespace mimij
                             }
                             else if (!comentado && tipo == -1)
                             {
-                                start = Validation.validation(txtName,countLinea,frase,ref lexema,start,ref i,ref comentado);
+                                start = Validation.validation(txtName, countLinea, frase, ref lexema, start, ref i, ref comentado);
                             }
                             i++;
                         }
                         if (!comentado && lexema.Length != 0)
                         {
-                            Validation.validation(txtName,countLinea,frase, ref lexema, start, ref i, ref comentado);
+                            Validation.validation(txtName, countLinea, frase, ref lexema, start, ref i, ref comentado);
                             lexema = string.Empty;
                         }
                     }
@@ -62,7 +63,7 @@ namespace mimij
                 if (comentado)
                 {
                     //ERROR COMENTARIO DE PARRAFO NO CERRADO
-                    Validation.fileWriting(txtName, "EOF", 0, 0, 0, 9);
+                    Validation.fileWriting(txtName, "EOF", countLinea, 0, 9);
                 }
             }
             Console.ReadKey();
