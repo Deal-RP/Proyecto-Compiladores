@@ -66,14 +66,12 @@ namespace mimij
                     //NUMERO HEXADECIMAL INCOMPLETO
                     lexema = frase.Substring(start, i - start - 1);
                     Validation.fileWriting(txtname, lexema, line, start, auxTipo);
-                    
                     break;
                 case 11:
                     //DOUBLE INCOMPLETO
                     i = (frase.Length < i) ? i = i - 1 : i;
                     lexema = frase.Substring(start, i - start - 1);
                     Validation.fileWriting(txtname, lexema, line, start, auxTipo);
-                    
                     break;
                 case 12:
                     //STRING INCOMPLETO
@@ -83,7 +81,6 @@ namespace mimij
                 case 13:
                     lexema = frase.Substring(start, i - start - 1);
                     Validation.fileWriting(txtname, lexema, line, start, auxTipo);
-                    
                     break;
                 case 9:
                     comentado = true;
@@ -94,7 +91,6 @@ namespace mimij
                     {
                         Validation.fileWriting(txtname, lexema, line, start, auxTipo);
                     }
-                    
                     lexema = string.Empty;
                     break;
             }
@@ -120,7 +116,8 @@ namespace mimij
                 $"*** Error line {line}. *** Unrecognized: '{name}'" : (tipo == 12) ?
                 $"*** Error line {line}. *** Missing char: " + '"' : (tipo == 9) ?
                 $"*** Error line {line} *** EOF:" : (tipo == 7 && name.Contains('\0')) ?
-                $"*** Error line {line}. *** Invalid char :" + '\0'
+                $"*** Error line {line}. *** Invalid char :" + '\0':(tipo == 13)?
+                $"*** Error line {line}. *** Unrecognized close : {name}"
                 : $"{name}\t\tline {line} cols {columnFirst + 1}-{name.Length + columnFirst} is {typesTokens[tipo]}";
             using (var writer = new StreamWriter(Path.Combine(path, $"{txtName}.out"), append: true))
             {
