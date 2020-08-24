@@ -38,6 +38,8 @@ namespace mimij
                 "^[0-9]+\\.[0-9]*[E|e][+|-]?$",
                 //POSIBLE STRING
                 $"^\"[{caracteres}|\\\\]*$",
+                //Comentario sin emparejar
+                "^\\*\\/$"
             };
             var cont = 0;
             foreach (var ER in listER)
@@ -58,24 +60,30 @@ namespace mimij
                 case -1:
                     //CARACTER INVALIDO
                     Validation.fileWriting(txtname, lexema, line, start, auxTipo);
+                    i++;
                     break;
                 case 10:
                     //NUMERO HEXADECIMAL INCOMPLETO
                     lexema = frase.Substring(start, i - start - 1);
                     Validation.fileWriting(txtname, lexema, line, start, auxTipo);
-                    i--;
+                    
                     break;
                 case 11:
                     //DOUBLE INCOMPLETO
                     i = (frase.Length < i) ? i = i - 1 : i;
                     lexema = frase.Substring(start, i - start - 1);
                     Validation.fileWriting(txtname, lexema, line, start, auxTipo);
-                    i--;
+                    
                     break;
                 case 12:
                     //STRING INCOMPLETO
                     lexema = frase.Substring(start, i - start - 1);
                     Validation.fileWriting(txtname, lexema, line, start, auxTipo);
+                    break;
+                case 13:
+                    lexema = frase.Substring(start, i - start - 1);
+                    Validation.fileWriting(txtname, lexema, line, start, auxTipo);
+                    
                     break;
                 case 9:
                     comentado = true;
@@ -86,11 +94,11 @@ namespace mimij
                     {
                         Validation.fileWriting(txtname, lexema, line, start, auxTipo);
                     }
-                    i--;
+                    
                     lexema = string.Empty;
-
                     break;
             }
+            i--;
             return i;
         }
         public static void fileWriting(string txtName, string name, int line, int columnFirst, int tipo)
