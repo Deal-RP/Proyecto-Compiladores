@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.IO;
+using System;
 
 namespace mimij
 {
@@ -52,35 +53,35 @@ namespace mimij
             }
             return -1;
         }
-        public static int validation(string txtname, int line, string frase, ref string lexema, int start, ref int i, ref bool comentado)
+        public static int validation(string txtname, int line, string frase, ref string lexema, int start, ref int i, ref bool comentado,ref int error)
         {
             var auxTipo = identificar(frase.Substring(start, i - start - 1));
             switch (auxTipo)
             {
                 case -1:
                     //CARACTER INVALIDO
-                    Validation.fileWriting(txtname, lexema, line, start, auxTipo);
+                    Validation.fileWriting(txtname, lexema, line, start, auxTipo,ref error);
                     i++;
                     break;
                 case 10:
                     //NUMERO HEXADECIMAL INCOMPLETO
                     lexema = frase.Substring(start, i - start - 1);
-                    Validation.fileWriting(txtname, lexema, line, start, auxTipo);
+                    Validation.fileWriting(txtname, lexema, line, start, auxTipo,ref error);
                     break;
                 case 11:
                     //DOUBLE INCOMPLETO
                     i = (frase.Length < i) ? i = i - 1 : i;
                     lexema = frase.Substring(start, i - start - 1);
-                    Validation.fileWriting(txtname, lexema, line, start, auxTipo);
+                    Validation.fileWriting(txtname, lexema, line, start, auxTipo,ref error);
                     break;
                 case 12:
                     //STRING INCOMPLETO
                     lexema = frase.Substring(start, i - start - 1);
-                    Validation.fileWriting(txtname, lexema, line, start, auxTipo);
+                    Validation.fileWriting(txtname, lexema, line, start, auxTipo,ref error);
                     break;
                 case 13:
                     lexema = frase.Substring(start, i - start - 1);
-                    Validation.fileWriting(txtname, lexema, line, start, auxTipo);
+                    Validation.fileWriting(txtname, lexema, line, start, auxTipo,ref error);
                     break;
                 case 9:
                     comentado = true;
@@ -89,7 +90,7 @@ namespace mimij
                     lexema = frase.Substring(start, i - start - 1);
                     if (auxTipo != 8)
                     {
-                        Validation.fileWriting(txtname, lexema, line, start, auxTipo);
+                        Validation.fileWriting(txtname, lexema, line, start, auxTipo, ref error);
                     }
                     lexema = string.Empty;
                     break;
@@ -97,7 +98,7 @@ namespace mimij
             i--;
             return i;
         }
-        public static void fileWriting(string txtName, string name, int line, int columnFirst, int tipo)
+        public static void fileWriting(string txtName, string name, int line, int columnFirst, int tipo, ref int error)
         {
             var typesTokens = new List<string>()
             {
@@ -119,6 +120,11 @@ namespace mimij
                 $"*** Error line {line}. *** Invalid char :" + '\0':(tipo == 13)?
                 $"*** Error line {line}. *** Unrecognized close : {name}"
                 : $"{name}\t\tline {line} cols {columnFirst + 1}-{name.Length + columnFirst} is {typesTokens[tipo]}";
+            if(tipo==-1||(tipo<14&&tipo>7))
+            {
+                Console.WriteLine(escritura);
+                error++;
+            }
             using (var writer = new StreamWriter(Path.Combine(path, $"{txtName}.out"), append: true))
             {
                 writer.WriteLine(escritura);

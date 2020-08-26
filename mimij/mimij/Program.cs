@@ -15,6 +15,7 @@ namespace mimij
             {
                 File.Delete(txtName + ".out");
             }
+            var error = 0;
             var frase = string.Empty;
             using (var sr = new StreamReader(path))
             {
@@ -33,7 +34,7 @@ namespace mimij
                             var tipo = Validation.identificar(lexema);
                             if (tipo == 0)
                             {
-                                Validation.fileWriting(txtName, lexema, countLinea, start, tipo);
+                                Validation.fileWriting(txtName, lexema, countLinea, start, tipo,ref error);
                                 lexema = string.Empty;
                                 start = i;
                             }
@@ -49,13 +50,13 @@ namespace mimij
                             }
                             else if (!comentado && tipo == -1)
                             {
-                                start = Validation.validation(txtName, countLinea, frase, ref lexema, start, ref i, ref comentado);
+                                start = Validation.validation(txtName, countLinea, frase, ref lexema, start, ref i, ref comentado,ref error);
                             }
                             i++;
                         }
                         if (!comentado && lexema.Length != 0)
                         {
-                            Validation.validation(txtName, countLinea, frase, ref lexema, start, ref i, ref comentado);
+                            Validation.validation(txtName, countLinea, frase, ref lexema, start, ref i, ref comentado,ref error);
                             lexema = string.Empty;
                         }
                     }
@@ -63,8 +64,12 @@ namespace mimij
                 if (comentado)
                 {
                     //ERROR COMENTARIO DE PARRAFO NO CERRADO
-                    Validation.fileWriting(txtName, "EOF", countLinea, 0, 9);
+                    Validation.fileWriting(txtName, "EOF", countLinea, 0, 9, ref error);
                 }
+            }
+            if(error == 0)
+            {
+                Console.WriteLine("Archivo Leido Exitosamente!!!!!.");
             }
             Console.ReadKey();
         }
