@@ -14,7 +14,7 @@ namespace mimij
             var listER = new List<string>()
             {
                 //PALABRA RESERVADA
-                "^void$|^int$|^double$|^boolean$|^string$|^class$|^const$|^interface$|^null$|^this$|^extends$|^implements$|^for$|^while$|^if$|^else$|^return$|^break$|^New$|^System$|^out$|^println$",
+                "^void$|^int$|^double$|^boolean$|^string$|^class$|^const$|^interface$|^null$|^this$|^extends$|^implements$|^for$|^while$|^if$|^else$|^return$|^break$|^New$|^System$|^out$|^println$|^Print$",
                 //BOOLEAN
                 "^true$|^false$",
                 //ENTERO
@@ -22,11 +22,11 @@ namespace mimij
                 //HEXADECIMAL
                 "^0[X|x][0-9A-Fa-f]+$",
                 //DOUBLE
-                "^[0-9]+\\.[0-9]*([E|e][+|-]?[0-9]{1,2})?$",
+                "^[0-9]+\\.[0-9]*([E|e][+|-]?[0-9]*)?$",
                 //OPERADORES
                 "^\\+$|^\\-$|^\\/$|^\\*$|^\\%$|^\\<$|^\\<=$|^\\>$|^\\>\\=$|^\\=$|^\\=\\=$|^\\!=$|^\\&\\&$|^\\|\\|$|^\\!$|^\\;$|^\\,$|^\\.$|^\\[\\]$|^\\[$|^\\]|^\\(\\)$|^\\{$|^\\}$|^\\{\\}$|^\\($|^\\)$",
                 //IDENTIFICADOR
-                "^[A-z|$]([A-z0-9$]){0,30}$",
+                "^[A-z|$]([A-z0-9$])*$",
                 //STRING
                 $"^\"[{caracteres}|\\\\]*\"$",
                 //comentario //
@@ -35,7 +35,7 @@ namespace mimij
                 $"^\\/\\*$",
                 //POSIBLE HEXADECIMAL
                 "^0[X|x]$",
-                 //POSIBLE DOUBLE
+                 //POSIBLE DOUBLE     12.0245 E + -
                 "^[0-9]+\\.[0-9]*[E|e][+|-]?$",
                 //POSIBLE STRING
                 $"^\"[{caracteres}|\\\\]*$",
@@ -115,10 +115,11 @@ namespace mimij
             var escritura =
                 (tipo == -1 || tipo == 10 | tipo == 11) ?
                 $"*** Error line {line}. *** Unrecognized: '{name}'" : (tipo == 12) ?
-                $"*** Error line {line}. *** Missing char: " + '"' : (tipo == 9) ?
+                $"*** Error line {line}. *** Incomplete string: " + '"' : (tipo == 9) ?
                 $"*** Error line {line} *** EOF:" : (tipo == 7 && name.Contains('\0')) ?
                 $"*** Error line {line}. *** Invalid char :" + '\0':(tipo == 13)?
-                $"*** Error line {line}. *** Unrecognized close : {name}"
+                $"*** Error line {line}. *** Unrecognized close : {name}": (tipo == 6 && name.Length>31)?
+                $"*** Error line {line}. *** Identifier too long : {name}"
                 : $"{name}\t\tline {line} cols {columnFirst + 1}-{name.Length + columnFirst} is {typesTokens[tipo]}";
             if(tipo==-1||(tipo<14&&tipo>7))
             {
