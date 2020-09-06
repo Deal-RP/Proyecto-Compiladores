@@ -22,7 +22,7 @@ namespace mimij
                 //HEXADECIMAL
                 "^0[X|x][0-9A-Fa-f]+$",
                 //DOUBLE
-                "^[0-9]+\\.[0-9]*([E|e][+|-]?[0-9]*)?$",
+                "^[0-9]+\\.[0-9]*([E|e][+|-]?[0-9]+)?$",
                 //OPERADORES
                 "^\\+$|^\\-$|^\\/$|^\\*$|^\\%$|^\\<$|^\\<=$|^\\>$|^\\>\\=$|^\\=$|^\\=\\=$|^\\!=$|^\\&\\&$|^\\|\\|$|^\\!$|^\\;$|^\\,$|^\\.$|^\\[\\]$|^\\[$|^\\]|^\\(\\)$|^\\{$|^\\}$|^\\{\\}$|^\\($|^\\)$",
                 //IDENTIFICADOR
@@ -35,7 +35,7 @@ namespace mimij
                 $"^\\/\\*$",
                 //POSIBLE HEXADECIMAL
                 "^0[X|x]$",
-                 //POSIBLE DOUBLE     12.0245 E + -
+                 //POSIBLE DOUBLE     
                 "^[0-9]+\\.[0-9]*[E|e][+|-]?$",
                 //POSIBLE STRING
                 $"^\"[{caracteres}|\\\\]*$",
@@ -70,7 +70,15 @@ namespace mimij
                     break;
                 case 11:
                     //DOUBLE INCOMPLETO
-                    i = (frase.Length < i) ? i = i - 1 : i;
+                    if(lexema.Last() == '+' || lexema.Last() == '-')
+                    {
+                        i -= 2;
+                    }
+                    else if (lexema.Last() == 'E' || lexema.Last() == 'e')
+                    {
+                        i--;
+                    }
+                    auxTipo = identificar(frase.Substring(start, i - start - 1));
                     lexema = frase.Substring(start, i - start - 1);
                     Validation.fileWriting(txtname, lexema, line, start, auxTipo,ref error);
                     break;
