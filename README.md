@@ -1,4 +1,4 @@
-# Proyecto-Compiladores
+## Proyecto-Compiladores
 
 #José Alejandro Montenegro Monzón - 1229918
 #Derly Alejandro Rodas Perez - 1177318
