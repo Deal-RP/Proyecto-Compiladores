@@ -8,6 +8,9 @@ namespace mimij
 {
     public class Validation
     {
+        public static int error = 0;
+        public static string txtName = string.Empty;
+        static List<Token> listToken = new List<Token>();
         static public int identificar(string lexema)
         {
             var caracteres = "\0\u0001\u0002\u0003\u0004\u0005\u0006\a\b\t\n\v\f\r\u000e\u000f\u0010\u0011\u0012\u0013\u0014\u0015\u0016\u0017\u0018\u0019\u001a\u001b\u001c\u001d\u001e\u001f !#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ\\[\\]\\^_`abcdefghijklmnopqrstuvwxyz{\\|}~\u007f\u0080\u0081\u0082\u0083\u0084\u0085\u0086\u0087\u0088\u0089\u008a\u008b\u008c\u008d\u008e\u008f\u0090\u0091\u0092\u0093\u0094\u0095\u0096\u0097\u0098\u0099\u009a\u009b\u009c\u009d\u009e\u009f ¡¢£¤¥¦§¨©ª«¬­®¯°±²³´µ¶·¸¹º»¼½¾¿ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞßàáâãäåæçèéêëìíîïðñòóôõö÷øùúûüýþÿ";
@@ -53,20 +56,20 @@ namespace mimij
             }
             return -1;
         }
-        public static int validation(string txtname, int line, string frase, ref string lexema, int start, ref int i, ref bool comentado,ref int error)
+        public static int validation(int line, string frase, ref string lexema, int start, ref int i, ref bool comentado)
         {
             var auxTipo = identificar(frase.Substring(start, i - start - 1));
             switch (auxTipo)
             {
                 case -1:
                     //CARACTER INVALIDO
-                    Validation.fileWriting(txtname, lexema, line, start, auxTipo,ref error);
+                    Validation.fileWriting(lexema, line, start, auxTipo);
                     i++;
                     break;
                 case 10:
                     //NUMERO HEXADECIMAL INCOMPLETO
                     lexema = frase.Substring(start, i - start - 1);
-                    Validation.fileWriting(txtname, lexema, line, start, auxTipo,ref error);
+                    Validation.fileWriting(lexema, line, start, auxTipo);
                     break;
                 case 11:
                     //DOUBLE INCOMPLETO
@@ -80,33 +83,31 @@ namespace mimij
                     }
                     auxTipo = identificar(frase.Substring(start, i - start - 1));
                     lexema = frase.Substring(start, i - start - 1);
-                    Validation.fileWriting(txtname, lexema, line, start, auxTipo,ref error);
+                    Validation.fileWriting(lexema, line, start, auxTipo);
                     break;
                 case 12:
                     //STRING INCOMPLETO
                     lexema = frase.Substring(start, i - start - 1);
-                    Validation.fileWriting(txtname, lexema, line, start, auxTipo,ref error);
+                    Validation.fileWriting(lexema, line, start, auxTipo);
                     break;
                 case 13:
                     lexema = frase.Substring(start, i - start - 1);
-                    Validation.fileWriting(txtname, lexema, line, start, auxTipo,ref error);
+                    Validation.fileWriting(lexema, line, start, auxTipo);
                     break;
                 case 9:
                     comentado = true;
                     break;
+                case 8:break;
                 default:
                     lexema = frase.Substring(start, i - start - 1);
-                    if (auxTipo != 8)
-                    {
-                        Validation.fileWriting(txtname, lexema, line, start, auxTipo, ref error);
-                    }
+                        Validation.fileWriting(lexema, line, start, auxTipo);
                     lexema = string.Empty;
                     break;
             }
             i--;
             return i;
         }
-        public static void fileWriting(string txtName, string name, int line, int columnFirst, int tipo, ref int error)
+        public static void fileWriting(string name, int line, int columnFirst, int tipo)
         {
             var typesTokens = new List<string>()
             {
@@ -133,6 +134,10 @@ namespace mimij
             {
                 Console.WriteLine(escritura);
                 error++;
+            }
+            else
+            {
+                listToken.Add(new Token(name, line, columnFirst, tipo));
             }
             using (var writer = new StreamWriter(Path.Combine(path, $"{txtName}.out"), append: true))
             {
