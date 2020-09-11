@@ -81,7 +81,7 @@ namespace mimij
                 }
                 else
                 {
-                    msg = "ERROR: SE ESPERABA UN ';'";
+                    msg = $"ERROR: SE ESPERABA UN ';' EN LA LINEA {actual.line}";
                 }
             }
             return false;
@@ -96,7 +96,7 @@ namespace mimij
                     pos++;
                     return true;
                 }
-                else { msg = "ERROR: SE ESPERABA UN IDENTIFICADOR"; }
+                else { msg = $"ERROR: SE ESPERABA UN IDENTIFICADOR EN LA LINEA:  {actual.line}"; }
             }
             return false;
         }
@@ -109,7 +109,7 @@ namespace mimij
                 pos++;
                 return ntDType();
             }
-            msg = "ERROR: FALTAN TIPO DE VARIABLE";
+            msg = $"ERROR: FALTAN TIPO DE VARIABLE EN LA LINEA {actual.line}";
             return false;
         }
         static bool ntDType()
@@ -129,7 +129,7 @@ namespace mimij
                     pos++;
                     return ntDType();
                 }
-                else { msg = "ERROR: FALTAN ']'"; return false; }
+                else { msg = $"ERROR: FALTAN ']' EN LA LINEA {actual.line}"; return false; }
             }
             return true;
         }
@@ -154,15 +154,21 @@ namespace mimij
                                 pos++;
                                 return stmtCerradura();
                             }
-                            else { msg = "ERROR: FALTA ')'"; }
+                            else { msg = $"ERROR: FALTA ')' EN LA LINEA {actual.line}"; }
                         }
                     }
-                    else { msg = "ERROR: '('"; }
+                    else if(actual.name =="()")
+                    {
+                        pos++;
+                        return stmtCerradura();
+                    }
+                    else { msg = $"ERROR: '(' EN LA LINEA {actual.line}"; }
                 }
-                else { msg = "ERROR: FALTA IDENTIFICADOR"; }
+                else { msg = $"ERROR: FALTA IDENTIFICADOR EN LA LINEA {actual.line}"; }
             }
             else if (actual.name == "void")
             {
+                pos++;
                 actual = orden[pos];
                 if (actual.tipo == 6)
                 {
@@ -179,12 +185,17 @@ namespace mimij
                                 pos++;
                                 return stmtCerradura();
                             }
-                            else { msg = "ERROR: FALTA ')'"; }
+                            else { msg = $"ERROR: FALTA ')' EN LA LINEA {actual.line}"; }
                         }
                     }
-                    else { msg = "ERROR: '('"; }
+                    else if(actual.name == "()")
+                    {
+                        pos++;
+                        return stmtCerradura();
+                    }
+                    else { msg = $"ERROR: '(' EN LA LINEA {actual.line}"; }
                 }
-                else { msg = "ERROR: FALTA IDENTIFICADOR"; }
+                else { msg = $"ERROR: FALTA IDENTIFICADOR {actual.line}"; }
             }
             return false;
         }
@@ -272,7 +283,7 @@ namespace mimij
                     msg = "ERROR FALTA ','";
                     return false;
                 }
-                msg = "Se esperaba por lo menos una variable";
+                msg = $"Se esperaba por lo menos una variable en la linea {actual.line}";
                 return false;
             }
             return true;
@@ -645,6 +656,7 @@ namespace mimij
             var actual = orden[pos];
             if (actual.name == "-")
             {
+                contExpr++;
                 pos++;
                 if (ntH())
                 {
@@ -653,6 +665,7 @@ namespace mimij
             }
             else if (actual.name == "!")
             {
+                contExpr++;
                 pos++;
                 if (ntH())
                 {
@@ -691,7 +704,6 @@ namespace mimij
             }
             else if (ntConstant())
             {
-                contExpr++;
                 return true;
             }
             else if (actual.name == "this")
