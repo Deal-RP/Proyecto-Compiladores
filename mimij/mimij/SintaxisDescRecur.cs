@@ -270,27 +270,45 @@ namespace mimij
         }
         static bool ntExpr()
         {
-            if (ntLValue())
+            contValue++;
+            if(contValue == 2)
+            {
+                return false;
+            }
+            else if (ntA())
             {
                 pos++;
-                var actual = orden[pos];
-                if(actual.name == "=")
+                if (ntDExpr())
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+        static bool ntDExpr()
+        {
+            var actual = orden[pos];   
+            if (actual.name == "||")
+            {
+                pos++;
+                if(ntA())
                 {
                     pos++;
-                    if(ntA())
+                    if (ntDExpr())
                     {
                         return true;
                     }
                 }
+                return false;
             }
-            return false;
+            return true;
         }
         static bool ntA()
         {
             if(ntB())
             {
                 pos++;
-                if(ntA())
+                if(ntDA())
                 {
                     return true;
                 }
@@ -300,7 +318,7 @@ namespace mimij
         static bool ntDA()
         {
             var actual = orden[pos];
-            if(actual.name == "||")
+            if(actual.name == "&&")
             {
                 pos++;
                 if(ntB())
@@ -330,13 +348,26 @@ namespace mimij
         static bool ntDB()
         {
             var actual = orden[pos];
-            if(actual.name== "&&")
+            if(actual.name== "==")
             {
                 pos++;
                 if(ntC())
                 {
                     pos++;
                     if(ntDB())
+                    {
+                        return true;
+                    }
+                }
+                return false;
+            }
+            else if(actual.name == "!=")
+            {
+                pos++;
+                if (ntC())
+                {
+                    pos++;
+                    if (ntDB())
                     {
                         return true;
                     }
@@ -360,10 +391,10 @@ namespace mimij
         static bool ntDC()
         {
             var actual = orden[pos];
-            if(actual.name == "=="||actual.name=="!=")
+            if(actual.name == "<"|| actual.name == ">")
             {
                 pos++;
-                if(ntD())
+                if(ntDDC())
                 {
                     pos++;
                     if(ntDC())
@@ -374,6 +405,34 @@ namespace mimij
                 return false;
             }
             return true;
+        }
+        static bool ntDDC()
+        {
+            var actual = orden[pos];
+            if (actual.name == "=")
+            {
+                pos++;
+                if (ntD())
+                {
+                    pos++;
+                    if (ntDC())
+                    {
+                        return true;
+                    }
+                }
+            }
+            else
+            {
+                if(ntD())
+                {
+                    pos++;
+                    if (ntDC())
+                    {
+                        return true;
+                    }
+                }
+            }
+            return false;
         }
         static bool ntD()
         {
@@ -390,13 +449,13 @@ namespace mimij
         static bool ntDD()
         {
             var actual = orden[pos];
-            if (actual.name == "<"|| actual.name == ">")
+            if (actual.name == "+"|| actual.name == "-")
             {
                 pos++;
-                if(ntD())
+                if(ntE())
                 {
                     pos++;
-                    if(ntDF())
+                    if(ntDD())
                     {
                         return true;
                     }
@@ -405,30 +464,10 @@ namespace mimij
             }
             return true;
         }
-        static bool ntDDF()
-        {
-            var actual = orden[pos];
-            if (ntE())
-            {
-                pos++;
-                if(ntDD())
-                {
-                    return true;
-                }
-            }
-            else if(actual.name == "=")
-            {
-                pos++;
-                if(ntE())
-                {
-                    return true;
-                }
-            }
-            return false;
-        }
         static bool ntE()
         {
-            if(ntF())
+            var actual = orden[pos];
+            if (ntF())
             {
                 pos++;
                 if(ntDE())
@@ -441,7 +480,7 @@ namespace mimij
         static bool ntDE()
         {
             var actual = orden[pos];
-            if (actual.name == "+" || actual.name == "-")
+            if(actual.name == "*"|| actual.name == "%"|| actual.name == "/")
             {
                 pos++;
                 if (ntF())
@@ -454,94 +493,54 @@ namespace mimij
                 }
                 return false;
             }
-            return true;
+            return true; ;
         }
         static bool ntF()
         {
-            if(ntG())
+            var actual = orden[pos];
+            if (actual.name == "!" || actual.name == "-")
             {
                 pos++;
-                if(ntDF())
+                if (ntG())
+                {
+                    return true;
+                }
+            }
+            else
+            {
+                if (ntG())
                 {
                     return true;
                 }
             }
             return false;
-        }
-        static bool ntDF()
-        {
-            var actual = orden[pos];
-            if(actual.name == "*"|| actual.name == "/"|| actual.name == "%")
-            {
-                pos++;
-                if(ntG())
-                {
-                    pos++;
-                    if(ntDF())
-                    {
-                        pos++;
-                        return true;
-                    }
-                }
-                return false;
-            }            
-            return true;
         }
         static bool ntG()
         {
             var actual = orden[pos];
-            if (actual.name == "!")
+            if (actual.name == "(")
             {
                 pos++;
-                if(ntH())
-                {
-                    pos++;
-                    return true;
-                }
-            }
-            else if (actual.name == "-")
-            {
-                pos++;
-                if(ntH())
-                {
-                    pos++;
-                    return true;
-                }
-            }
-            else if(ntH())
-            {
-                pos++;
-                return true;
-            }
-            return false;
-        }
-        static bool ntH()
-        {
-            var actual = orden[pos];
-            if(actual.name == "[")
-            {
-                pos++;
-                if(ntExpr())
+                if (ntExpr())
                 {
                     pos++;
                     actual = orden[pos];
-                    if (actual.name == "]")
+                    if (actual.name == ")")
                     {
-                        pos++;
                         return true;
                     }
                 }
             }
-            else if (ntConstant() || ntDLValue())
+            else if (ntConstant())
             {
                 return true;
             }
-            else if(actual.name == "this")
+            else if (actual.name == "this")
             {
                 return true;
             }
             //duda en esta si va junto o separado
-            else if(actual.name == "New")
+            else if (actual.name == "New")
             {
                 pos++;
                 actual = orden[pos];
@@ -560,7 +559,29 @@ namespace mimij
                     }
                 }
             }
+            else if(ntLValue())
+            {
+                pos++;
+                if (ntDG())
+                {
+                    return true;
+                }
+            }
             return false;
+        }
+        static bool ntDG()
+        {
+            var actual = orden[pos];
+            if(actual.name == "=")
+            {
+                pos++;
+                if (ntExpr())
+                {
+                    return true;
+                }
+                return false;
+            }
+            return true;
         }
         static bool ntLValue()
         {
