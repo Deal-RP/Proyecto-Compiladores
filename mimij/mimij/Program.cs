@@ -68,7 +68,8 @@ namespace mimij
             }
             if (Validation.error == 0)
             {
-                Console.WriteLine("Archivo Leido Exitosamente!!!!!.");
+                Console.WriteLine("No se encontraron errores lexicos");
+                SintaxisDescRecur.AnalizadorS();
             }
             Console.ReadKey();
         }

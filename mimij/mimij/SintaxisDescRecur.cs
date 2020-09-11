@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data.SqlTypes;
 using System.Linq;
 using System.Net.Configuration;
 using System.Text;
@@ -9,37 +10,42 @@ namespace mimij
 {
     class SintaxisDescRecur
     {
-        static int pos;
-        static string msg = string.Empty;
-        static int cProgram = 0;
-        static int cFunction = 0;
-        static int cFormals = 0;
-        static int cDReturn = 0;
-        static int cDPrint = 0;
-        // Agregar if de que pos no sea mayor a cantidad de lista Tokens
         public static List<Token> orden = new List<Token>();
-        public static bool ntProgram()
+        static int pos, contReturn, contPrint, contExpr, contValue;
+        static string msg = string.Empty;
+        public static void AnalizadorS()
         {
-            return ntDecl() && ntDProgram();
-        }
-        public static bool ntDProgram()
-        {
-            //Agregar validacion
-            cProgram = 0;
-            var bandera = ntProgram();
-            if(!bandera &&cProgram >0)
+            var cont = 0;
+            var error = 0;
+            pos = 0;
+            do
             {
-                return false;
+                if (ntDecl())
+                {
+                    cont++;
+                }
+                else
+                {
+                    Console.WriteLine(msg);
+                    error++;
+                    //Logica saltarnos a la siguiente linea
+                }
+            } while (pos < orden.Count);
+
+            if (cont == 0)
+            {
+                Console.WriteLine("Se esperaba por lo menos una declaracion");
             }
-            return true;
-            //return ntProgram();
+            else if (error == 0)
+            {
+                Console.WriteLine("No se encontraron errores sintacticos");
+            }
         }
-        public static bool ntDecl()
+        static bool ntDecl()
         {
-            cProgram++;
             return ntVariableDecl() || ntFunctionDecl();
         }
-        public static bool ntVariableDecl()
+        static bool ntVariableDecl()
         {
             if (ntVariable())
             {
@@ -56,9 +62,8 @@ namespace mimij
             }
             return false;
         }
-        public static bool ntVariable()
+        static bool ntVariable()
         {
-            cFormals++;
             if (ntType())
             {
                 var actual = orden[pos];
@@ -71,20 +76,18 @@ namespace mimij
             }
             return false;
         }
-        public static bool ntType()
+        static bool ntType()
         {
             var actual = orden[pos];
             if (actual.name == "int" || actual.name == "double" || actual.name == "boolean" || actual.name == "string" || actual.tipo == 6)
             {
-                //contProgram++;
-                //Aqui va ese if al momento de sumar cada pos++
                 pos++;
                 return ntDType();
             }
             msg = "ERROR: FALTAN TIPO DE VARIABLE";
             return false;
         }
-        public static bool ntDType()
+        static bool ntDType()
         {
             var actual = orden[pos];
             if (actual.name == "[]")
@@ -105,7 +108,7 @@ namespace mimij
             }
             return true;
         }
-        public static bool ntFunctionDecl()
+        static bool ntFunctionDecl()
         {
             var actual = orden[pos];
             if (ntType())
@@ -124,7 +127,12 @@ namespace mimij
                             if (actual.name == ")")
                             {
                                 pos++;
-                                return ntDFunctionDecl();
+                                var bandera = ntDFunction();
+                                while (bandera)
+                                {
+                                    bandera = ntDFunction();
+                                }
+                                return bandera;
                             }
                             else { msg = "ERROR: FALTA ')'"; }
                         }
@@ -135,7 +143,6 @@ namespace mimij
             }
             else if (actual.name == "void")
             {
-                //contProgram++;
                 actual = orden[pos];
                 if (actual.tipo == 6)
                 {
@@ -150,7 +157,12 @@ namespace mimij
                             if (actual.name == ")")
                             {
                                 pos++;
-                                return ntDFunctionDecl();
+                                var bandera = ntDFunction();
+                                while (bandera)
+                                {
+                                    bandera = ntDFunction();
+                                }
+                                return bandera;
                             }
                             else { msg = "ERROR: FALTA ')'"; }
                         }
@@ -161,95 +173,80 @@ namespace mimij
             }
             return false;
         }
-        public static bool ntDFunctionDecl()
+        static bool ntDFunction()
         {
-            cFunction = 0;
-            var bandera = ntStmt();
-            if(!bandera &&cFunction>0)
-            { 
-                return false;
-            }
-            return true;
-        }
-        public static bool ntFormals()
-        {
-            if (ntDFormals())
+            contExpr = 0;
+            contReturn = 0;
+            if (!ntReturnStmt())
             {
-                var actual = orden[pos];
-                if (actual.name == ",") { pos++; }
-                else
+                if (contReturn > 0) { return false; }
+                contExpr = 0;
+                contPrint = 0;
+                if (!ntPrintStmt())
                 {
-                    msg = "ERROR FALTA ','";
-                    return false;
+                    if (contPrint > 0) { return false; }
+                    contExpr = 0;
+                    if (!ntExpr()) { return contExpr > 0 ? false : true; }
                 }
             }
             return true;
         }
-        public static bool ntDFormals()
+        static bool ntFormals()
         {
-            //Validacion
-            cFormals = 0;
-            var bandera = ntVariable();
-            if (!bandera && cFormals != 0)
+            //Variable+
+            var actual = orden[pos];
+            if (actual.name == ",") { pos++; }
+            else
             {
+                msg = "ERROR FALTA ','";
                 return false;
             }
             return true;
-            //return ntVariable() && ntDVariable();
         }
-        public static bool ntStmt()
+        static bool ntStmt()
         {
-            cFunction++;
             if (ntReturnStmt()||ntPrintStmt())
             {
-                pos++;
                 return true;
             }
             else if(ntExpr())
             {
-                pos++;
                 var actual = orden[pos];
                 if (actual.name ==";")
                 {
+                    pos++;
                     return true;
                 }
             }
             return false;
         }
-        public static bool ntReturnStmt()
+        static bool ntReturnStmt()
         {
             var actual = orden[pos];
             if (actual.name == "return")
             {
+                contReturn++;
                 pos++;
-                if(ntDReturnStmt())
+                if (pos == orden.Count)
                 {
                     return true;
                 }
-                return false;
+                if (!ntExpr() && contExpr > 0) { return false; }
+                return true;
             }
-            return true;
+            return false;
         }
-        public static bool ntDReturnStmt()
-        {
-            cDReturn = 0;
-            var bandera = ntExpr();
-            if(!bandera && cDReturn>0)
-            {
-                return false;
-            }
-            return true;
-        }
-        public static bool ntPrintStmt()
+        static bool ntPrintStmt()
         {
             var actual = orden[pos];
             if(actual.name == "Print")
             {
+                contPrint++;
                 pos++;
                 if(actual.name == "(")
                 {
                     pos++;
-                    if(ntDPrintStmt())
+                    //Agregar Expr+
                     {
                         pos++;
                         actual = orden[pos];
@@ -271,20 +268,8 @@ namespace mimij
             }
             return false;
         }
-        public static bool ntDPrintStmt()
+        static bool ntExpr()
         {
-            cDPrint = 0;
-            var bandera = ntExpr();
-            if(!bandera && cDPrint != 0)
-            {
-                return false;
-            }
-            return true;
-        }
-        public static bool ntExpr()
-        {
-            cDReturn++;
-            cDPrint++;
             if (ntLValue())
             {
                 pos++;
@@ -300,7 +285,7 @@ namespace mimij
             }
             return false;
         }
-        public static bool ntA()
+        static bool ntA()
         {
             if(ntB())
             {
@@ -312,7 +297,7 @@ namespace mimij
             }
             return false;
         }
-        public static bool ntDA()
+        static bool ntDA()
         {
             var actual = orden[pos];
             if(actual.name == "||")
@@ -330,7 +315,7 @@ namespace mimij
             }
             return true;
         }
-        public static bool ntB()
+        static bool ntB()
         {
             if(ntC())
             {
@@ -342,7 +327,7 @@ namespace mimij
             }
             return false;
         }
-        public static bool ntDB()
+        static bool ntDB()
         {
             var actual = orden[pos];
             if(actual.name== "&&")
@@ -360,7 +345,7 @@ namespace mimij
             }
             return true;
         }
-        public static bool ntC()
+        static bool ntC()
         {
             if(ntD())
             {
@@ -372,7 +357,7 @@ namespace mimij
             }
             return false;
         }
-        public static bool ntDC()
+        static bool ntDC()
         {
             var actual = orden[pos];
             if(actual.name == "=="||actual.name=="!=")
@@ -390,7 +375,7 @@ namespace mimij
             }
             return true;
         }
-        public static bool ntD()
+        static bool ntD()
         {
             if(ntE())
             {
@@ -402,7 +387,7 @@ namespace mimij
             }
             return false;
         }
-        public static bool ntDD()
+        static bool ntDD()
         {
             var actual = orden[pos];
             if (actual.name == "<"|| actual.name == ">")
@@ -420,7 +405,7 @@ namespace mimij
             }
             return true;
         }
-        public static bool ntDDF()
+        static bool ntDDF()
         {
             var actual = orden[pos];
             if (ntE())
@@ -441,7 +426,7 @@ namespace mimij
             }
             return false;
         }
-        public static bool ntE()
+        static bool ntE()
         {
             if(ntF())
             {
@@ -453,7 +438,7 @@ namespace mimij
             }
             return false;
         }
-        public static bool ntDE()
+        static bool ntDE()
         {
             var actual = orden[pos];
             if (actual.name == "+" || actual.name == "-")
@@ -471,7 +456,7 @@ namespace mimij
             }
             return true;
         }
-        public static bool ntF()
+        static bool ntF()
         {
             if(ntG())
             {
@@ -483,7 +468,7 @@ namespace mimij
             }
             return false;
         }
-        public static bool ntDF()
+        static bool ntDF()
         {
             var actual = orden[pos];
             if(actual.name == "*"|| actual.name == "/"|| actual.name == "%")
@@ -502,7 +487,7 @@ namespace mimij
             }            
             return true;
         }
-        public static bool ntG()
+        static bool ntG()
         {
             var actual = orden[pos];
             if (actual.name == "!")
@@ -530,7 +515,7 @@ namespace mimij
             }
             return false;
         }
-        public static bool ntH()
+        static bool ntH()
         {
             var actual = orden[pos];
             if(actual.name == "[")
@@ -577,7 +562,7 @@ namespace mimij
             }
             return false;
         }
-        public static bool ntLValue()
+        static bool ntLValue()
         {
             var actual = orden[pos];
             if(actual.name == "ident")
@@ -596,7 +581,7 @@ namespace mimij
             }
             return false;
         }
-        public static bool ntDLValue()
+        static bool ntDLValue()
         {
             var actual = orden[pos];
             if (actual.name == ".")
@@ -624,20 +609,15 @@ namespace mimij
             }
             return false;
         }
-        public static bool ntConstant()
+        static bool ntConstant()
         {
             var actual = orden[pos];
-            if (actual.name == "int" || actual.name == "double" || actual.name == "boolean" || actual.name == "string")
-            {
-                pos++;
-                return ntConstant();
-            }
-            else if(actual.name == "null")
+            if (actual.tipo == 2 || actual.tipo == 3 || actual.tipo == 4 || actual.tipo == 7 || actual.name == "null")
             {
                 pos++;
                 return true;
             }
-            return true;
+            return false;
         }
     }
 }

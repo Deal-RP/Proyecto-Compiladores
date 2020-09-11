@@ -14,7 +14,6 @@ namespace mimij
         public int columnFirst { get; set; }
         public int columnEnd { get; set; }
         public int tipo { get; set; }
-
         public Token(string Name, int Line, int Column, int Tipo)
         {
             name = Name;
