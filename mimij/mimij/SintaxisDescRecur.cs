@@ -13,6 +13,31 @@ namespace mimij
         public static List<Token> orden = new List<Token>();
         static int pos, contReturn, contPrint, contExpr, contValue;
         static string msg = string.Empty;
+        static void getNewLine()
+        {
+            int firstLine = 0;
+            var first = true;
+            var encontrado = false;
+            while (pos < orden.Count && !encontrado)
+            {
+                if (first)
+                {
+                    firstLine = orden[pos].line;
+                    first = false;
+                }
+                else if (firstLine != orden[pos].line)
+                {
+                    encontrado = true;
+                    pos--;
+                }
+                pos++;
+            }
+            if (first)
+            {
+                pos++;
+            }
+        }
+
         public static void AnalizadorS()
         {
             var cont = 0;
@@ -28,7 +53,7 @@ namespace mimij
                 {
                     Console.WriteLine(msg);
                     error++;
-                    //Logica saltarnos a la siguiente linea
+                    getNewLine();
                 }
             } while (pos < orden.Count);
 
