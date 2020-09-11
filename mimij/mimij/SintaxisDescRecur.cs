@@ -11,7 +11,7 @@ namespace mimij
     class SintaxisDescRecur
     {
         public static List<Token> orden = new List<Token>();
-        static int pos, contReturn, contPrint, contExpr, contValue, contVariable;
+        static int pos, contReturn, contPrint, contExpr, contVariable;
         static string msg = string.Empty;
         static void getNewLine()
         {
@@ -152,12 +152,7 @@ namespace mimij
                             if (actual.name == ")")
                             {
                                 pos++;
-                                var bandera = ntDFunction();
-                                while (bandera)
-                                {
-                                    bandera = ntDFunction();
-                                }
-                                return bandera;
+                                return stmtCerradura();
                             }
                             else { msg = "ERROR: FALTA ')'"; }
                         }
@@ -182,12 +177,7 @@ namespace mimij
                             if (actual.name == ")")
                             {
                                 pos++;
-                                var bandera = ntDFunction();
-                                while (bandera)
-                                {
-                                    bandera = ntDFunction();
-                                }
-                                return bandera;
+                                return stmtCerradura();
                             }
                             else { msg = "ERROR: FALTA ')'"; }
                         }
@@ -198,68 +188,94 @@ namespace mimij
             }
             return false;
         }
-        static bool ntDFunction()
+        static bool stmtCerradura()
+        {
+            var cont = 0;
+            var posibleError = false;
+            while (pos < orden.Count && !posibleError)
+            {
+                if (ntStmt())
+                {
+                    cont++;
+                }
+                else
+                {
+                    if (contExpr > 0 || contPrint > 0 || contReturn > 0)
+                    {
+                        return false;
+                    }
+                    else
+                    {
+                        posibleError = true;
+                    }
+                }
+            }
+            return true;
+        }
+        static bool ntStmt()
         {
             contExpr = 0;
             contReturn = 0;
             if (!ntReturnStmt())
             {
-                if (contReturn > 0) { return false; }
+                if (contReturn > 0 && contExpr > 0) { return false; }
                 contExpr = 0;
                 contPrint = 0;
                 if (!ntPrintStmt())
                 {
-                    if (contPrint > 0) { return false; }
+                    if (contPrint > 0 && contExpr > 0) { return false; }
                     contExpr = 0;
                     if (!ntExpr()) { return contExpr > 0 ? false : true; }
+                    else
+                    {
+                        var actual = orden[pos];
+                        if (actual.name == ";")
+                        {
+                            pos++;
+                            return true;
+                        }
+                    }
                 }
             }
             return true;
         }
         static bool ntFormals()
         {
+            // Variable +
             var cont = 0;
-            while (pos < orden.Count)
+            var posibleError = false;
+            while (pos < orden.Count && !posibleError)
             {
+                contVariable = 0;
                 if (ntVariable())
                 {
                     cont++;
                 }
                 else
                 {
-                    return false;
+                    if (contVariable > 0)
+                    {
+                        return false;
+                    }
+                    else
+                    {
+                        posibleError = true;
+                    }
                 }
             }
-            if (cont == 0)
+            if (cont != 0)
             {
+                var actual = orden[pos];
+                if (actual.name == ",") { pos++; }
+                else
+                {
+                    msg = "ERROR FALTA ','";
+                    return false;
+                }
                 msg = "Se esperaba por lo menos una variable";
                 return false;
             }
-            var actual = orden[pos];
-            if (actual.name == ",") { pos++; }
-            else
-            {
-                msg = "ERROR FALTA ','";
-                return false;
-            }
             return true;
-        }
-        static bool ntStmt()
-        {
-            if (ntReturnStmt()||ntPrintStmt())
-            {
-                return true;
-            }
-            else if(ntExpr())
-            {
-                var actual = orden[pos];
-                if (actual.name ==";")
-                {
-                    pos++;
-                    return true;
-                }
-            }
-            return false;
         }
         static bool ntReturnStmt()
         {
@@ -276,16 +292,37 @@ namespace mimij
         static bool ntPrintStmt()
         {
             var actual = orden[pos];
-            if(actual.name == "Print")
+            if (actual.name == "Print")
             {
                 contPrint++;
                 pos++;
-                if(actual.name == "(")
+                if (actual.name == "(")
                 {
                     pos++;
-                    //Agregar Expr+
+                    // Expr +
+                    var cont = 0;
+                    var posibleError = false;
+                    while (pos < orden.Count && !posibleError)
                     {
-                        pos++;
+                        contExpr = 0;
+                        if (ntExpr())
+                        {
+                            cont++;
+                        }
+                        else
+                        {
+                            if (contExpr > 0)
+                            {
+                                return false;
+                            }
+                            else
+                            {
+                                posibleError = true;
+                            }
+                        }
+                    }
+                    if (cont != 0)
+                    {
                         actual = orden[pos];
                         if (actual.name == ",")
                         {
@@ -296,9 +333,11 @@ namespace mimij
                                 pos++;
                                 if (actual.name == ";")
                                 {
+                                    pos++;
                                     return true;
                                 }
                             }
+
                         }
                     }
                 }
@@ -631,6 +670,7 @@ namespace mimij
             var actual = orden[pos];
             if (actual.name == "New")
             {
+                contExpr++;
                 pos++;
                 actual = orden[pos];
                 if (actual.name == "(")
@@ -651,16 +691,18 @@ namespace mimij
             }
             else if (ntConstant())
             {
-                pos++;
+                contExpr++;
                 return true;
             }
             else if (actual.name == "this")
             {
+                contExpr++;
                 pos++;
                 return true;
             }
             else if (actual.tipo == 6)
             {
+                contExpr++;
                 pos++;
                 if (ntDH())
                 {
@@ -688,6 +730,7 @@ namespace mimij
             var actual = orden[pos];
             if (actual.tipo == 2 || actual.tipo == 3 || actual.tipo == 4 || actual.tipo == 7 || actual.name == "null")
             {
+                contExpr++;
                 pos++;
                 return true;
             }
