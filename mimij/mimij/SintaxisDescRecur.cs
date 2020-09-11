@@ -11,7 +11,7 @@ namespace mimij
     class SintaxisDescRecur
     {
         public static List<Token> orden = new List<Token>();
-        static int pos, contReturn, contPrint, contExpr, contValue;
+        static int pos, contReturn, contPrint, contExpr, contValue, contVariable;
         static string msg = string.Empty;
         static void getNewLine()
         {
@@ -37,7 +37,6 @@ namespace mimij
                 pos++;
             }
         }
-
         public static void AnalizadorS()
         {
             var cont = 0;
@@ -106,6 +105,7 @@ namespace mimij
             var actual = orden[pos];
             if (actual.name == "int" || actual.name == "double" || actual.name == "boolean" || actual.name == "string" || actual.tipo == 6)
             {
+                contVariable++;
                 pos++;
                 return ntDType();
             }
@@ -218,7 +218,23 @@ namespace mimij
         }
         static bool ntFormals()
         {
-            //Variable+
+            var cont = 0;
+            while (pos < orden.Count)
+            {
+                if (ntVariable())
+                {
+                    cont++;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+            if (cont == 0)
+            {
+                msg = "Se esperaba por lo menos una variable";
+                return false;
+            }
             var actual = orden[pos];
             if (actual.name == ",") { pos++; }
             else
@@ -252,10 +268,6 @@ namespace mimij
             {
                 contReturn++;
                 pos++;
-                if (pos == orden.Count)
-                {
-                    return true;
-                }
                 if (!ntExpr() && contExpr > 0) { return false; }
                 return true;
             }
