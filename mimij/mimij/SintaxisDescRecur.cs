@@ -11,7 +11,8 @@ namespace mimij
     class SintaxisDescRecur
     {
         public static List<Token> orden = new List<Token>();
-        static int pos, contReturn, contPrint, contExpr, contVariable;
+        static int pos, contReturn, contPrint, contExpr, contVariable, posAux;
+
         static string msg = string.Empty;
         static void getNewLine()
         {
@@ -67,7 +68,14 @@ namespace mimij
         }
         static bool ntDecl()
         {
-            return ntVariableDecl() || ntFunctionDecl();
+            posAux = pos;
+            var banderaV = ntVariableDecl();
+            if (!banderaV)
+            {
+                pos = posAux;
+                return ntFunctionDecl();
+            }
+            return true;
         }
         static bool ntVariableDecl()
         {
@@ -211,7 +219,7 @@ namespace mimij
                 }
                 else
                 {
-                    if (contExpr > 0 || contPrint > 0 || contReturn > 0)
+                    if (contExpr >0 || contPrint > 0 || contReturn > 0)
                     {
                         return false;
                     }
@@ -225,6 +233,7 @@ namespace mimij
         }
         static bool ntStmt()
         {
+            posAux = pos;
             contExpr = 0;
             contReturn = 0;
             if (!ntReturnStmt())
@@ -236,7 +245,14 @@ namespace mimij
                 {
                     if (contPrint > 0 && contExpr > 0) { return false; }
                     contExpr = 0;
-                    if (!ntExpr()) { return contExpr > 0 ? false : true; }
+                    if (!ntExpr()) 
+                    {
+                        if (posAux == pos)
+                        {
+                            return false;
+                        }
+                        return contExpr > 0 ? false : true;
+                    }
                     else
                     {
                         var actual = orden[pos];
@@ -728,6 +744,7 @@ namespace mimij
             var actual = orden[pos];
             if (actual.name == "=")
             {
+                contExpr++;
                 pos++;
                 if (ntExpr())
                 {
@@ -740,7 +757,7 @@ namespace mimij
         static bool ntConstant()
         {
             var actual = orden[pos];
-            if (actual.tipo == 2 || actual.tipo == 3 || actual.tipo == 4 || actual.tipo == 7 || actual.name == "null")
+            if (actual.tipo==1||actual.tipo == 2 || actual.tipo == 3 || actual.tipo == 4 || actual.tipo == 7 || actual.name == "null")
             {
                 contExpr++;
                 pos++;
