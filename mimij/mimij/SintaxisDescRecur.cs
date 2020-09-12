@@ -324,6 +324,7 @@ namespace mimij
             {
                 contPrint++;
                 pos++;
+                actual = orden[pos];
                 if (actual.name == "(")
                 {
                     pos++;
