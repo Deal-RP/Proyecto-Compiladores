@@ -311,6 +311,7 @@ namespace mimij
             {
                 contReturn++;
                 pos++;
+                contExpr = 0;
                 if (!ntExpr() && contExpr > 0) { return false; }
                 return true;
             }
@@ -326,6 +327,7 @@ namespace mimij
                 if (actual.name == "(")
                 {
                     pos++;
+                    posAux = pos;
                     // Expr +
                     var cont = 0;
                     var posibleError = false;
@@ -338,6 +340,10 @@ namespace mimij
                         }
                         else
                         {
+                            if (posAux == pos)
+                            {
+                                posibleError = true;
+                            }
                             if (contExpr > 0)
                             {
                                 return false;
