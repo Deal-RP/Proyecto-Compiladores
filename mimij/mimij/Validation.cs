@@ -27,7 +27,7 @@ namespace mimij
                 //DOUBLE
                 "^[0-9]+\\.[0-9]*([E|e][+|-]?[0-9]+)?$",
                 //OPERADORES
-                "^\\+$|^\\-$|^\\/$|^\\*$|^\\%$|^\\<$|^\\<=$|^\\>$|^\\>\\=$|^\\=$|^\\=\\=$|^\\!=$|^\\&\\&$|^\\|\\|$|^\\!$|^\\;$|^\\,$|^\\.$|^\\[\\]$|^\\[$|^\\]|^\\(\\)$|^\\{$|^\\}$|^\\{\\}$|^\\($|^\\)$",
+                "^\\+$|^\\-$|^\\/$|^\\*$|^\\%$|^\\<$|^\\<=$|^\\>$|^\\>\\=$|^\\=$|^\\=\\=$|^\\!=$|^\\&\\&$|^\\|\\|$|^\\!$|^\\;$|^\\,$|^\\.$|^\\[\\]$|^\\[$|^\\]|^\\(\\)$|^\\{$|^\\}$|^\\{\\}$|^\\($|^\\)$|^\\:=$|^\\:$",
                 //IDENTIFICADOR
                 "^[A-z|$]([A-z0-9$])*$",
                 //STRING
@@ -137,7 +137,7 @@ namespace mimij
             }
             else
             {
-                SintaxisAscSLR.Tokens.Add(new Token(name, line, columnFirst, tipo));
+                SintaxisAscSLR.Tokens.Enqueue(new Token(name, line, columnFirst, tipo));
             }
             using (var writer = new StreamWriter(Path.Combine(path, $"{txtName}.out"), append: true))
             {

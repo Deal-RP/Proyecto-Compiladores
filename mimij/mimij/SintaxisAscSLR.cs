@@ -8,8 +8,10 @@ namespace mimij
 {
     class SintaxisAscSLR
     {
-        public static List<Token> Tokens = new List<Token>();
+        public static Queue<Token> Tokens = new Queue<Token>();
         public static Dictionary<int, Dictionary<string, string>> Tabla = new Dictionary<int, Dictionary<string, string>>();
+        public static Dictionary<int, Dictionary<string, int>> producciones = new Dictionary<int,Dictionary<string, int>>();
+        static int reducction = 0;
         public static void tableCreation()
         {
             for (int i = 0; i < 9; i++)
@@ -17,6 +19,34 @@ namespace mimij
                 var diccionario = valueAsignation(i);
                 Tabla.Add(i, diccionario);
             }
+            for (int i = 1; i < 6; i++)
+            {
+                var diccionario = productionAsignation(i);
+                producciones.Add(i, diccionario);
+            }
+        }
+        static Dictionary<string, int> productionAsignation(int estado)
+        {
+            var diccionario = new Dictionary<string, int>();
+            switch (estado)
+            {
+                case 1:
+                    diccionario.Add("S", 1);
+                    break;
+                case 2:
+                    diccionario.Add("S", 3);
+                    break;
+                case 3:
+                    diccionario.Add("V", 1);
+                    break;
+                case 4:
+                    diccionario.Add("E", 1);
+                    break;
+                case 5:
+                    diccionario.Add("E", 1);
+                    break;
+            }
+            return diccionario;
         }
         static Dictionary<string, string> valueAsignation(int estado)
         {
@@ -27,50 +57,16 @@ namespace mimij
                     diccionario.Add("id", "d2");
                     diccionario.Add("S", "1");
                     diccionario.Add("V", "3");
-                    /*diccionario.Add("ident", "d9");
-                    diccionario.Add("static", "d5");
-                    diccionario.Add("class", "d6");
-                    diccionario.Add("interface", "d7");
-                    diccionario.Add("int", "d11");
-                    diccionario.Add("double", "d12");
-                    diccionario.Add("boolean", "d13");
-                    diccionario.Add("string", "d14");
-                    diccionario.Add("void", "d10");
-                    diccionario.Add("Program", "1");
-                    diccionario.Add("Decl", "2");
-                    diccionario.Add("TYPEX", "8");
-                    diccionario.Add("TYPE", "3");
-                    diccionario.Add("FDECL", "4");
-                    */
                     break;
                 case 1:
                     diccionario.Add("$", "Accept");
-                    //diccionario.Add("$", "Accept");
                     break;
                 case 2:
                     diccionario.Add(":=", "r3");
                     diccionario.Add("$", "r1,r3");
-                    /*diccionario.Add("ident", "d9");
-                    diccionario.Add("static", "d5");
-                    diccionario.Add("class", "d6");
-                    diccionario.Add("interface", "d7");
-                    diccionario.Add("int", "d11");
-                    diccionario.Add("double", "d12");
-                    diccionario.Add("boolean", "d13");
-                    diccionario.Add("string", "d14");
-                    diccionario.Add("void", "d10");
-                    diccionario.Add("$", "r2");
-                    diccionario.Add("Program", "15");
-                    diccionario.Add("Decl", "2");
-                    diccionario.Add("TYPEX", "8");
-                    diccionario.Add("TYPE", "3");
-                    diccionario.Add("FDECL", "4");
-                    */
                     break;
                 case 3:
                     diccionario.Add(":=", "d4");
-                    //diccionario.Add("ident", "d16,r16");
-                    //diccionario.Add("[]", "d17");
                     break;
                 case 4:
                     diccionario.Add("id", "d8");
@@ -96,24 +92,102 @@ namespace mimij
         }
         public static void Parse()
         {
-            var tokenAux = new Token("$",0,0,0);
-            Tokens.Add(tokenAux);
+            //pila
+            var Pila = new Stack<int>();
+            Pila.Push(0);
+            //simbolo
+            var Simbolo = new Stack<Token>();
+            //Entrada
+            var tokenAux = new Token("$", 0, 0, 0);
+            Tokens.Enqueue(tokenAux);
             var pos = 0;
-            for (int i = 0; i < Tokens.Count(); i++)
+            while (Tokens.Count() != 0)
             {
-                Action(Tabla[pos], Tokens[i]);
+               pos = Action(ref Pila, ref Simbolo, ref Tokens, Tabla[pos]);
+                if (pos == 1 && Tabla[pos][Tokens.First().name] == "Accept")
+                {
+                    Console.WriteLine("Cadena aceptada");
+                    Console.ReadLine();
+                    break;
+                }
             }
         }
-        private static void Action(Dictionary<string, string> diccionario, Token token)
+        private static int Action(ref Stack<int> Pila, ref Stack<Token> Simbolo, ref Queue<Token> Tokens, Dictionary<string, string> Estado)
         {
-            if(diccionario.ContainsKey(token.name))
+            int pos = 0;
+            if (reducction == 0)
             {
-                var accion = diccionario[token.name];
+                if (Estado.ContainsKey(Tokens.First().name))
+                {
+                    var acciones = Estado[Tokens.First().name];
+                    var conflictos = acciones.Split(',');
+                    if (conflictos.Length == 1)
+                    {
+                        var valor = string.Empty;
+                        var accAux = conflictos[0];
+                        if (accAux[0] == 'd' && reducction != 1)
+                        {
+                            valor = conflictos[0].Substring(1);
+                            Simbolo.Push(Tokens.First());
+                            Pila.Push(Convert.ToInt32(valor));
+                            pos = Convert.ToInt32(valor);
+                            Tokens.Dequeue();
+                            return pos;
+                        }
+                        else
+                        {
+                            if (accAux[0] == 'r' && reducction != 1)
+                            {
+                                valor = conflictos[0].Substring(1);
+                                var producction = producciones[Convert.ToInt32(valor)];
+                                var simbol = producction.Keys;
+                                var cantidadRemover = producction[simbol.First()];
+                                for (int i = 0; i < cantidadRemover; i++)
+                                {
+                                    Pila.Pop();
+                                    Simbolo.Pop();
+                                }
+                                var tokenAux = new Token(simbol.First(), 0, 0, 0);
+                                Simbolo.Push(tokenAux);
+                                reducction = 1;
+                                pos = Pila.First();
+                                return pos;
+                            }
+                            else
+                            {
+                                if (accAux == "Accept")
+                                {
+                                    return 1;
+                                }
+                            }
+                        }
+                    }
+                    else
+                    {
+
+                    }
+                }
+                else
+                {
+
+                }
             }
             else
             {
+                if (Estado.ContainsKey(Simbolo.First().name))
+                {
+                    var acciones = Estado[Simbolo.First().name];
+                    var valor = Convert.ToInt32(acciones);
+                    Pila.Push(valor);
+                    reducction = 0;
+                    return valor;
+                }
+                else
+                {
 
+                }
             }
+            return pos;
         }
     }
 }
