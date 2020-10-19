@@ -32,7 +32,7 @@ namespace mimij
             return celda == null ? "" : Convert.ToString(celda);
         }
 
-        public static void loadTabla()
+        static void loadTabla()
         {
             range = ws.UsedRange;
             var rw = range.Rows.Count;
@@ -58,26 +58,30 @@ namespace mimij
             excel.Quit();
         }
 
+        static void loadGramatica()
+        {
+            using (var file = new StreamReader(Path.Combine(Environment.CurrentDirectory, "AnalisiSintactico", "Gramatica.txt")))
+            {
+                var cont = 0;
+                var line = string.Empty;
+                while ((line = file.ReadLine()) != null)
+                {
+                    var produc = line.Split(new[] { " -> " }, StringSplitOptions.None);
+                    var cantProduc = produc[1].Split(new char[] { ' ' , '\t'});
+                    producciones.Add(cont, new Dictionary<string, int> { { produc[0], cantProduc.Length } });
+                    cont++;
+                }
+                file.Close();
+            }
+        }
+
         static public void load()
         {
             t = new Thread(new ThreadStart(loadTabla));
             t.Start();
+            loadGramatica();
         }
 
-        public static void tableCreation()
-        {
-            t.Join();
-            for (int i = 0; i < 9; i++)
-            {
-                var diccionario = valueAsignation(i);
-                Tabla.Add(i, diccionario);
-            }
-            for (int i = 1; i < 6; i++)
-            {
-                var diccionario = productionAsignation(i);
-                producciones.Add(i, diccionario);
-            }
-        }
         static Dictionary<string, int> productionAsignation(int estado)
         {
             var diccionario = new Dictionary<string, int>();
@@ -145,6 +149,7 @@ namespace mimij
         }
         public static void Parse()
         {
+            t.Join();
             //pila
             var Pila = new Stack<int>();
             Pila.Push(0);
