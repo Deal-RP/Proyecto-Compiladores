@@ -7,6 +7,7 @@ namespace mimij
     {
         static void Main(string[] args)
         {
+            SintaxisAscSLR.load();
             var countLinea = 0;
             Console.WriteLine("Arrastre el archivo de entrada a consola");
             var path = Console.ReadLine().Trim('"');

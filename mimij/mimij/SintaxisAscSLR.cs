@@ -1,8 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.Office.Interop.Excel;
+using _Excel = Microsoft.Office.Interop.Excel;
+using Microsoft.Office.Interop.Excel;
+using System.Data;
+using System.Threading;
 
 namespace mimij
 {
@@ -10,8 +17,54 @@ namespace mimij
     {
         public static List<Token> Tokens = new List<Token>();
         public static Dictionary<int, Dictionary<string, string>> Tabla = new Dictionary<int, Dictionary<string, string>>();
+
+        static _Application excel = new _Excel.Application();
+        static Workbook wb = excel.Workbooks.Open(Path.Combine(Environment.CurrentDirectory, "AnalisiSintactico", "Tabla.xlsx"));
+        static Worksheet ws = wb.Worksheets[1];
+        static Range range;
+        static Thread t;
+
+        static string getValueCell(int x, int y)
+        {
+            var celda = (range.Cells[y, x] as Range).Value2;
+            return celda == null ? "" : Convert.ToString(celda);
+        }
+
+        public static void loadTabla()
+        {
+            range = ws.UsedRange;
+            var rw = range.Rows.Count;
+            var cl = range.Columns.Count;
+
+            var columnBase = new List<string>();
+            for (int i = 2; i <= cl; i++)
+            {
+                columnBase.Add(getValueCell(i, 1));
+            }
+
+            for (int i = 2; i <= rw; i++)
+            {
+                var dicFila = new Dictionary<string, string>();
+                for (int j = 2; j < cl; j++)
+                {
+                    dicFila.Add(columnBase[j - 2], getValueCell(j, i));
+                }
+                Tabla.Add(i - 2, dicFila);
+            }
+
+            wb.Close(true, null, null);
+            excel.Quit();
+        }
+
+        static public void load()
+        {
+            t = new Thread(new ThreadStart(loadTabla));
+            t.Start();
+        }
+
         public static void tableCreation()
         {
+            t.Join();
             for (int i = 0; i < 9; i++)
             {
                 var diccionario = valueAsignation(i);
