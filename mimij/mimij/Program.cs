@@ -69,6 +69,8 @@ namespace mimij
             if (Validation.error == 0)
             {
                 Console.WriteLine("Archivo Leido Exitosamente!!!!!.");
+                SintaxisAscSLR.tableCreation();
+                SintaxisAscSLR.Parse();
             }
             Console.ReadKey();
         }
