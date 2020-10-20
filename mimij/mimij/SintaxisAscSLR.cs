@@ -19,32 +19,28 @@ namespace mimij
         public static Dictionary<int, Dictionary<string, string>> Tabla = new Dictionary<int, Dictionary<string, string>>();
         public static Dictionary<int, Dictionary<string, int>> producciones = new Dictionary<int,Dictionary<string, int>>();
         static int reducction = 0;
-
+        static bool Error = false;
         static _Application excel = new _Excel.Application();
         static string newPath = Environment.CurrentDirectory.Substring(0, Environment.CurrentDirectory.IndexOf("\\bin"));
         static Workbook wb = excel.Workbooks.Open(Path.Combine(newPath, "AnalisiSintactico", "Tabla.xlsx"));
         static Worksheet ws = wb.Worksheets[1];
         static Range range;
         static Thread t;
-
         static string getValueCell(int x, int y)
         {
             var celda = (range.Cells[y, x] as Range).Value2;
             return celda == null ? "" : Convert.ToString(celda);
         }
-
         static void loadTabla()
         {
             range = ws.UsedRange;
             var rw = range.Rows.Count;
             var cl = range.Columns.Count;
-
             var columnBase = new List<string>();
             for (int i = 2; i <= cl; i++)
             {
                 columnBase.Add(getValueCell(i, 1));
             }
-
             for (int i = 2; i <= rw; i++)
             {
                 var dicFila = new Dictionary<string, string>();
@@ -54,11 +50,9 @@ namespace mimij
                 }
                 Tabla.Add(i - 2, dicFila);
             }
-
             wb.Close(true, null, null);
             excel.Quit();
         }
-
         static void loadGramatica()
         {
             using (var file = new StreamReader(Path.Combine(newPath, "AnalisiSintactico", "Gramatica.txt")))
@@ -75,78 +69,11 @@ namespace mimij
                 file.Close();
             }
         }
-
         static public void load()
         {
             t = new Thread(new ThreadStart(loadTabla));
             t.Start();
             loadGramatica();
-        }
-
-        static Dictionary<string, int> productionAsignation(int estado)
-        {
-            var diccionario = new Dictionary<string, int>();
-            switch (estado)
-            {
-                case 1:
-                    diccionario.Add("S", 1);
-                    break;
-                case 2:
-                    diccionario.Add("S", 3);
-                    break;
-                case 3:
-                    diccionario.Add("V", 1);
-                    break;
-                case 4:
-                    diccionario.Add("E", 1);
-                    break;
-                case 5:
-                    diccionario.Add("E", 1);
-                    break;
-            }
-            return diccionario;
-        }
-        static Dictionary<string, string> valueAsignation(int estado)
-        {
-            var diccionario = new Dictionary<string, string>();
-            switch (estado)
-            {
-                case 0:
-                    diccionario.Add("id", "d2");
-                    diccionario.Add("S", "1");
-                    diccionario.Add("V", "3");
-                    break;
-                case 1:
-                    diccionario.Add("$", "Accept");
-                    break;
-                case 2:
-                    diccionario.Add(":=", "r3");
-                    diccionario.Add("$", "r1,r3");
-                    break;
-                case 3:
-                    diccionario.Add(":=", "d4");
-                    break;
-                case 4:
-                    diccionario.Add("id", "d8");
-                    diccionario.Add("num", "d7");
-                    diccionario.Add("V", "6");
-                    diccionario.Add("E", "5");
-                    break;
-                case 5:
-                    diccionario.Add("$", "r2");
-                    break;
-                case 6:
-                    diccionario.Add("$", "r4");
-                    break;
-                case 7:
-                    diccionario.Add("$", "r5");
-                    break;
-                case 8:
-                    diccionario.Add("$", "r3");
-                    diccionario.Add(":=", "r3");
-                    break;
-            }
-            return diccionario;
         }
         public static void Parse()
         {
@@ -162,27 +89,41 @@ namespace mimij
             var pos = 0;
             while (Tokens.Count() != 0)
             {
-               pos = Action(ref Pila, ref Simbolo, ref Tokens, Tabla[pos]);
+                pos = Action(ref Pila, ref Simbolo, ref Tokens, Tabla[pos]);
                 if (pos == 1 && Tabla[pos][Tokens.First().name] == "Accept")
                 {
                     Console.WriteLine("Cadena aceptada");
-                    Console.ReadLine();
                     break;
                 }
+                if (pos == 0 && Error)
+                {
+                    var lineaActual = Tokens.First().line;
+                    while (lineaActual == Tokens.First().line)
+                    {
+                        Tokens.Dequeue();
+                    }
+                    if (Tokens.First().name == "$")
+                    {
+                        Console.WriteLine("Error: La cadena no es aceptada");
+                        break;
+                    }
+                    Error = false;
+                }
             }
+            Console.ReadLine();
         }
         private static int Action(ref Stack<int> Pila, ref Stack<Token> Simbolo, ref Queue<Token> Tokens, Dictionary<string, string> Estado)
         {
             int pos = 0;
             if (reducction == 0)
             {
-                if (Estado.ContainsKey(Tokens.First().name))
+                var valor = (Tokens.First().tipo == 6 || Tokens.First().tipo == 1 || Tokens.First().tipo == 2 || Tokens.First().tipo == 7 || Tokens.First().tipo == 4) ? esUnTerminalDiferente() : Tokens.First().name;
+                if (Estado.ContainsKey(valor))
                 {
                     var acciones = Estado[Tokens.First().name];
                     var conflictos = acciones.Split(',');
                     if (conflictos.Length == 1)
                     {
-                        var valor = string.Empty;
                         var accAux = conflictos[0];
                         if (accAux[0] == 'd' && reducction != 1)
                         {
@@ -228,7 +169,9 @@ namespace mimij
                 }
                 else
                 {
-
+                    Console.WriteLine("El token {0} cituado en la linea {1} es incorrecto", Tokens.First().name, Tokens.First().line);
+                    Error = true;
+                    return 0;
                 }
             }
             else
@@ -243,10 +186,28 @@ namespace mimij
                 }
                 else
                 {
-
+                    Error = true;
+                    return 0;
                 }
             }
             return pos;
+        }
+        private static string esUnTerminalDiferente()
+        {
+            switch(Tokens.First().tipo)
+            {
+                case 1:
+                    return "booleanConstant";
+                case 2:
+                    return "intConstant";
+                case 4:
+                    return "doubleConstant";
+                case 7:
+                    return "stringConstant";
+                case 6:
+                    return "ident";
+                default: return string.Empty;
+            }
         }
     }
 }
