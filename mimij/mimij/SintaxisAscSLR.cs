@@ -21,7 +21,8 @@ namespace mimij
         static int reducction = 0;
 
         static _Application excel = new _Excel.Application();
-        static Workbook wb = excel.Workbooks.Open(Path.Combine(Environment.CurrentDirectory, "AnalisiSintactico", "Tabla.xlsx"));
+        static string newPath = Environment.CurrentDirectory.Substring(0, Environment.CurrentDirectory.IndexOf("\\bin"));
+        static Workbook wb = excel.Workbooks.Open(Path.Combine(newPath, "AnalisiSintactico", "Tabla.xlsx"));
         static Worksheet ws = wb.Worksheets[1];
         static Range range;
         static Thread t;
@@ -60,7 +61,7 @@ namespace mimij
 
         static void loadGramatica()
         {
-            using (var file = new StreamReader(Path.Combine(Environment.CurrentDirectory, "AnalisiSintactico", "Gramatica.txt")))
+            using (var file = new StreamReader(Path.Combine(newPath, "AnalisiSintactico", "Gramatica.txt")))
             {
                 var cont = 0;
                 var line = string.Empty;
