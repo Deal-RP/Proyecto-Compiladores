@@ -19,7 +19,10 @@ namespace mimij
         public static Dictionary<int, Dictionary<string, string>> Tabla = new Dictionary<int, Dictionary<string, string>>();
         public static Dictionary<int, Dictionary<string, int>> producciones = new Dictionary<int,Dictionary<string, int>>();
         static int reducction = 0;
-        static bool Error = false;
+        static bool error = false;
+        static bool aceptar = false;
+        static int lActual = 0;
+        static int cantError = 0;
         static _Application excel = new _Excel.Application();
         static string newPath = Environment.CurrentDirectory.Substring(0, Environment.CurrentDirectory.IndexOf("\\bin"));
         static Workbook wb = excel.Workbooks.Open(Path.Combine(newPath, "AnalisiSintactico", "Tabla.xlsx"));
@@ -90,107 +93,116 @@ namespace mimij
             while (Tokens.Count() != 0)
             {
                 pos = Action(ref Pila, ref Simbolo, ref Tokens, Tabla[pos]);
-                if (pos == 1 && Tabla[pos][Tokens.First().name] == "Accept")
+                if (pos == 1 && aceptar)
                 {
-                    Console.WriteLine("Cadena aceptada");
                     break;
                 }
-                if (pos == 0 && Error)
+                if (pos == 0 && error)
                 {
-                    var lineaActual = Tokens.First().line;
-                    while (lineaActual == Tokens.First().line)
+                    while (lActual == Tokens.First().line)
                     {
                         Tokens.Dequeue();
                     }
-                    if (Tokens.First().name == "$")
+                    if (Tokens.First().name == "$" && error)
                     {
-                        Console.WriteLine("Error: La cadena no es aceptada");
                         break;
                     }
-                    Error = false;
                 }
+                error = false;
+            }
+            if (cantError > 0)
+            {
+                Console.WriteLine("Error: La cadena no es aceptada");
+            }
+            else
+            {
+                Console.WriteLine("Cadena aceptada");
             }
             Console.ReadLine();
         }
         private static int Action(ref Stack<int> Pila, ref Stack<Token> Simbolo, ref Queue<Token> Tokens, Dictionary<string, string> Estado)
         {
-            int pos = 0;
+            var valor = string.Empty;
+            var actions = string.Empty;
             if (reducction == 0)
             {
-                var valor = (Tokens.First().tipo == 6 || Tokens.First().tipo == 1 || Tokens.First().tipo == 2 || Tokens.First().tipo == 7 || Tokens.First().tipo == 4) ? esUnTerminalDiferente() : Tokens.First().name;
-                if (Estado.ContainsKey(valor))
+                valor = (Estado.ContainsKey(Tokens.First().name)) ? Tokens.First().name : esUnTerminalDiferente();
+                if(valor == string.Empty)
                 {
-                    var acciones = Estado[Tokens.First().name];
-                    var conflictos = acciones.Split(',');
-                    if (conflictos.Length == 1)
+                    Console.WriteLine("El token {0} localizado en la linea {1} no es válido para esta gramática", Tokens.First().name, lActual);
+                    error = true;
+                    cantError++;
+                    return 0;
+                }
+                actions = Estado[valor];
+                if (actions != string.Empty)
+                {
+                    if (!actions.Contains('/'))
                     {
-                        var accAux = conflictos[0];
-                        if (accAux[0] == 'd' && reducction != 1)
+                        int estadoA;
+                        lActual = Tokens.First().line;
+                        if (actions[0] == 's')
                         {
-                            valor = conflictos[0].Substring(1);
+                            estadoA = Convert.ToInt32(actions.Substring(1));
+                            Pila.Push(estadoA);
                             Simbolo.Push(Tokens.First());
-                            Pila.Push(Convert.ToInt32(valor));
-                            pos = Convert.ToInt32(valor);
                             Tokens.Dequeue();
-                            return pos;
+                            return estadoA;
                         }
-                        else
+                        else if (actions[0] == 'r')
                         {
-                            if (accAux[0] == 'r' && reducction != 1)
+                            estadoA = Convert.ToInt32(actions.Substring(1));
+                            var producction = producciones[estadoA];
+                            var simbol = producction.Keys;
+                            var cantidadRemover = producction[simbol.First()];
+                            for (int i = 0; i < cantidadRemover; i++)
                             {
-                                valor = conflictos[0].Substring(1);
-                                var producction = producciones[Convert.ToInt32(valor)];
-                                var simbol = producction.Keys;
-                                var cantidadRemover = producction[simbol.First()];
-                                for (int i = 0; i < cantidadRemover; i++)
-                                {
-                                    Pila.Pop();
-                                    Simbolo.Pop();
-                                }
-                                var tokenAux = new Token(simbol.First(), 0, 0, 0);
-                                Simbolo.Push(tokenAux);
-                                reducction = 1;
-                                pos = Pila.First();
-                                return pos;
+                                Pila.Pop();
+                                Simbolo.Pop();
                             }
-                            else
-                            {
-                                if (accAux == "Accept")
-                                {
-                                    return 1;
-                                }
-                            }
+                            var tokenAux = new Token(simbol.First(), 0, 0, 0);
+                            Simbolo.Push(tokenAux);
+                            reducction = 1;
+                            return Pila.First();
+                        }
+                        else if(actions == "acc")
+                        {
+                            aceptar = true;
+                            return 1;
                         }
                     }
                     else
                     {
-
+                        return 0;
+                        //posee conflictos
                     }
                 }
                 else
                 {
-                    Console.WriteLine("El token {0} cituado en la linea {1} es incorrecto", Tokens.First().name, Tokens.First().line);
-                    Error = true;
+                    Console.WriteLine("El token {0} localizado en la linea {1} es incorrecto", Tokens.First().name, lActual);
+                    error = true;
+                    cantError++;
                     return 0;
                 }
             }
             else
             {
-                if (Estado.ContainsKey(Simbolo.First().name))
+                actions = Estado[Simbolo.First().name];
+                if (actions!= string.Empty)
                 {
-                    var acciones = Estado[Simbolo.First().name];
-                    var valor = Convert.ToInt32(acciones);
-                    Pila.Push(valor);
+                    var value = Convert.ToInt32(actions);
+                    Pila.Push(value);
                     reducction = 0;
-                    return valor;
+                    return value;
                 }
                 else
                 {
-                    Error = true;
+                    Console.WriteLine($"La linea {lActual} no posee la estructura correcta" );
+                    error = true;
                     return 0;
                 }
             }
-            return pos;
+            return 0;
         }
         private static string esUnTerminalDiferente()
         {
