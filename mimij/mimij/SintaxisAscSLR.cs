@@ -93,6 +93,10 @@ namespace mimij
             while (Tokens.Count() != 0)
             {
                 pos = Action(ref Pila, ref Simbolo, ref Tokens, Tabla[pos]);
+
+
+
+
                 if (pos == 1 && aceptar)
                 {
                     break;
@@ -118,63 +122,46 @@ namespace mimij
             {
                 Console.WriteLine("Cadena aceptada");
             }
-            Console.ReadLine();
         }
         private static int Action(ref Stack<int> Pila, ref Stack<Token> Simbolo, ref Queue<Token> Tokens, Dictionary<string, string> Estado)
         {
-            var valor = string.Empty;
             var actions = string.Empty;
             if (reducction == 0)
             {
-                valor = (Estado.ContainsKey(Tokens.First().name)) ? Tokens.First().name : esUnTerminalDiferente();
-                if(valor == string.Empty)
-                {
-                    Console.WriteLine("El token {0} localizado en la linea {1} no es válido para esta gramática", Tokens.First().name, lActual);
-                    error = true;
-                    cantError++;
-                    return 0;
-                }
+                var valor = (Estado.ContainsKey(Tokens.First().name)) ? Tokens.First().name : esUnTerminalDiferente();
                 actions = Estado[valor];
                 if (actions != string.Empty)
                 {
-                    if (!actions.Contains('/'))
+                    int estadoA;
+                    lActual = Tokens.First().line;
+                    if (actions[0] == 's')
                     {
-                        int estadoA;
-                        lActual = Tokens.First().line;
-                        if (actions[0] == 's')
-                        {
-                            estadoA = Convert.ToInt32(actions.Substring(1));
-                            Pila.Push(estadoA);
-                            Simbolo.Push(Tokens.First());
-                            Tokens.Dequeue();
-                            return estadoA;
-                        }
-                        else if (actions[0] == 'r')
-                        {
-                            estadoA = Convert.ToInt32(actions.Substring(1));
-                            var producction = producciones[estadoA];
-                            var simbol = producction.Keys;
-                            var cantidadRemover = producction[simbol.First()];
-                            for (int i = 0; i < cantidadRemover; i++)
-                            {
-                                Pila.Pop();
-                                Simbolo.Pop();
-                            }
-                            var tokenAux = new Token(simbol.First(), 0, 0, 0);
-                            Simbolo.Push(tokenAux);
-                            reducction = 1;
-                            return Pila.First();
-                        }
-                        else if(actions == "acc")
-                        {
-                            aceptar = true;
-                            return 1;
-                        }
+                        estadoA = Convert.ToInt32(actions.Substring(1));
+                        Pila.Push(estadoA);
+                        Simbolo.Push(Tokens.First());
+                        Tokens.Dequeue();
+                        return estadoA;
                     }
-                    else
+                    else if (actions[0] == 'r')
                     {
-                        return 0;
-                        //posee conflictos
+                        estadoA = Convert.ToInt32(actions.Substring(1));
+                        var producction = producciones[estadoA];
+                        var simbol = producction.Keys;
+                        var cantidadRemover = producction[simbol.First()];
+                        for (int i = 0; i < cantidadRemover; i++)
+                        {
+                            Pila.Pop();
+                            Simbolo.Pop();
+                        }
+                        var tokenAux = new Token(simbol.First(), 0, 0, 0);
+                        Simbolo.Push(tokenAux);
+                        reducction = 1;
+                        return Pila.First();
+                    }
+                    else if (actions == "acc")
+                    {
+                        aceptar = true;
+                        return 1;
                     }
                 }
                 else
@@ -188,7 +175,7 @@ namespace mimij
             else
             {
                 actions = Estado[Simbolo.First().name];
-                if (actions!= string.Empty)
+                if (actions != string.Empty)
                 {
                     var value = Convert.ToInt32(actions);
                     Pila.Push(value);
@@ -197,7 +184,7 @@ namespace mimij
                 }
                 else
                 {
-                    Console.WriteLine($"La linea {lActual} no posee la estructura correcta" );
+                    Console.WriteLine($"La linea {lActual} no posee la estructura correcta");
                     error = true;
                     return 0;
                 }
@@ -218,7 +205,7 @@ namespace mimij
                     return "stringConstant";
                 case 6:
                     return "ident";
-                default: return string.Empty;
+                default: return "e";
             }
         }
     }

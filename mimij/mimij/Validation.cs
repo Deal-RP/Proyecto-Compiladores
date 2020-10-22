@@ -17,7 +17,7 @@ namespace mimij
             var listER = new List<string>()
             {
                 //PALABRA RESERVADA
-                "^void$|^int$|^double$|^boolean$|^string$|^class$|^const$|^interface$|^null$|^this$|^extends$|^implements$|^for$|^while$|^if$|^else$|^return$|^break$|^New$|^System$|^out$|^println$|^Print$",
+                "^void$|^int$|^double$|^boolean$|^string$|^class$|^static$|^interface$|^null$|^this$|^extends$|^implements$|^for$|^while$|^if$|^else$|^return$|^break$|^New$|^System$|^out$|^println$|^Print$",
                 //BOOLEAN
                 "^true$|^false$",
                 //ENTERO
@@ -27,7 +27,7 @@ namespace mimij
                 //DOUBLE
                 "^[0-9]+\\.[0-9]*([E|e][+|-]?[0-9]+)?$",
                 //OPERADORES
-                "^\\+$|^\\-$|^\\/$|^\\*$|^\\%$|^\\<$|^\\<=$|^\\>$|^\\>\\=$|^\\=$|^\\=\\=$|^\\!=$|^\\&\\&$|^\\|\\|$|^\\!$|^\\;$|^\\,$|^\\.$|^\\[\\]$|^\\[$|^\\]|^\\(\\)$|^\\{$|^\\}$|^\\{\\}$|^\\($|^\\)$|^\\:=$|^\\:$",
+                "^\\+$|^\\-$|^\\/$|^\\*$|^\\%$|^\\<$|^\\<=$|^\\>$|^\\>\\=$|^\\=$|^\\=\\=$|^\\!=$|^\\&\\&$|^\\|\\|$|^\\!$|^\\;$|^\\,$|^\\.$|^\\[\\]$|^\\[$|^\\]|^\\(\\)$|^\\{$|^\\}$|^\\{\\}$|^\\($|^\\)$",
                 //IDENTIFICADOR
                 "^[A-z|$]([A-z0-9$])*$",
                 //STRING
