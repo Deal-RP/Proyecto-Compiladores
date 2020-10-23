@@ -30,7 +30,8 @@ Field -> Type ident ( Formals ) StmtBlock
 Field -> static TYPEX ident ;
 PrototypeS -> Prototype PrototypeS
 PrototypeS -> e
-Prototype -> FDecl ident ( Formals ) ;
+Prototype -> void ident ( Formals ) ;
+Prototype -> Type ident ( Formals ) ;
 StmtBlock -> { VariableDecl ConstDecl StmtX }
 VariableDecl -> Type ident ; VariableDecl
 VariableDecl -> e
@@ -45,11 +46,11 @@ Stmt -> while ( Expr ) Stmt
 Stmt -> for ( Expr ; Expr ; Expr ) Stmt
 Stmt -> break ;
 Stmt -> return Expr ;
-Stmt -> System ( ExprX , ) ;
+Stmt -> System.out.println ( ExprX ) ;
 Stmt -> StmtBlock
 ElseStmt -> else Stmt
 ElseStmt -> e
-ExprX -> Expr ExprX
+ExprX -> Expr , ExprX
 ExprX -> Expr
 Expr -> ident = A
 Expr -> A
