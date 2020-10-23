@@ -20,7 +20,7 @@ Extends -> extends ident
 Extends -> e
 Implements -> implements Ident
 Implements -> e
-Ident -> ident , ident Ident
+Ident -> ident , Ident
 Ident -> ident
 FieldX -> Field FieldX
 FieldX -> e
