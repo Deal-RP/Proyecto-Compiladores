@@ -93,10 +93,6 @@ namespace mimij
             while (Tokens.Count() != 0)
             {
                 pos = Action(ref Pila, ref Simbolo, ref Tokens, Tabla[pos]);
-
-
-
-
                 if (pos == 1 && aceptar)
                 {
                     break;
