@@ -43,7 +43,7 @@ namespace mimij
                                 lexema = string.Empty;
                                 start = i;
                             }
-                            else if (lexema == " ")
+                            else if (lexema == " "|| lexema == "\t")
                             {
                                 lexema = string.Empty;
                                 start = i;

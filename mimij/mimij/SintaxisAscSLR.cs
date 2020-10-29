@@ -98,9 +98,12 @@ namespace mimij
                 {
                     break;
                 }
-                if((pos == 0 || pos == 2)&&Simbolo.First().name == "Decl")
+                if(Simbolo.Count()>0)
                 {
-                    lActual = Tokens.First().line;
+                    if ((pos == 0 || pos == 2) && Simbolo.First().name == "Decl")
+                    {
+                        lActual = Tokens.First().line;
+                    }
                 }
                 if (pos == 0 && error)
                 {
