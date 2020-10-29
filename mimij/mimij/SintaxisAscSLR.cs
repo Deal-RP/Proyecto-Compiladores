@@ -114,6 +114,7 @@ namespace mimij
                     }
                     //indicar que volverá a iniciar de 0
                     error = false;
+                    lActual = Tokens.First().line;
                 }
             }
             if (cantError > 0)
@@ -135,13 +136,13 @@ namespace mimij
                 if (actions != string.Empty)
                 {
                     int estadoA;
-                    lActual = Tokens.First().line;
                     if (actions[0] == 's')
                     {
                         estadoA = Convert.ToInt32(actions.Substring(1));
                         Pila.Push(estadoA);
                         Simbolo.Push(Tokens.First());
                         Tokens.Dequeue();
+                        lActual = Tokens.First().line;
                         return estadoA;
                     }
                     else if (actions[0] == 'r')
