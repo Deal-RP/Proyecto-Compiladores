@@ -34,6 +34,11 @@ namespace mimij
                             var tipo = Validation.identificar(lexema);
                             if (tipo == 0)
                             {
+                                if (lexema == "int" && frase.Length >= i + 6 && frase.Substring(start, i - start + 6) == "interface")
+                                {
+                                    lexema = frase.Substring(start, i - start + 6);
+                                    i += 6;
+                                }
                                 Validation.fileWriting(lexema, countLinea, start, tipo);
                                 lexema = string.Empty;
                                 start = i;
