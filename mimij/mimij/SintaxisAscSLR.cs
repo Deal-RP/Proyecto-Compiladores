@@ -84,12 +84,9 @@ namespace mimij
                 {
                     break;
                 }
-                if(Simbolo.Count()>0)
+                if (!error)
                 {
-                    if ((pos == 0 || pos == 2) && Simbolo.First().name == "Decl")
-                    {
-                        lActual = Tokens.First().line;
-                    }
+                    lActual = Tokens.First().line;
                 }
                 if (pos == 0 && error)
                 {
@@ -175,6 +172,7 @@ namespace mimij
                 }
                 else
                 {
+                    Console.WriteLine("El token {0} localizado en la linea {1} es incorrecto", Tokens.First().name, Tokens.First().line);
                     error = true;
                     cantError++;
                     return 0;
