@@ -148,7 +148,7 @@ namespace mimij
                     actions = Estado["e"];
                     if(actions == string.Empty)
                     {
-                        Console.WriteLine("El token {0} localizado en la linea {1} es incorrecto", Tokens.First().name, lActual);
+                        Console.WriteLine("El token {0} localizado en la linea {1} es incorrecto", Tokens.First().name, Tokens.First().line);
                         error = true;
                         cantError++;
                         return 0;
@@ -187,6 +187,12 @@ namespace mimij
                     aceptar = true;
                     return 1;
                 }
+                else
+                {
+                    error = true;
+                    cantError++;
+                    return 0;
+                }
             }
             else
             {
@@ -205,7 +211,6 @@ namespace mimij
                     return 0;
                 }
             }
-            return 0;
         }
         private static string esUnTerminalDiferente()
         {
