@@ -38,7 +38,8 @@ namespace mimij
                     //Numero de columnas
                     for (int i = 1; i < 75; i++)
                     {
-                        dicFila.Add(columnBase[i - 1], split[i]);
+                        var accion = split[i] == " " ? string.Empty : split[i];
+                        dicFila.Add(columnBase[i - 1], accion);
                     }
                     Tabla.Add(cont, dicFila);
                     cont++;
