@@ -107,6 +107,9 @@ namespace mimij
                     {
                         break;
                     }
+                    //resetear la pila
+                    Pila = new Stack<int>();
+                    Simbolo = new Stack<Token>();
                 }
                 error = false;
             }
