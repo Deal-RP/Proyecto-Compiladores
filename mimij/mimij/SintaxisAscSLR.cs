@@ -10,6 +10,7 @@ using _Excel = Microsoft.Office.Interop.Excel;
 using Microsoft.Office.Interop.Excel;
 using System.Data;
 using System.Threading;
+using System.Security.Cryptography;
 
 namespace mimij
 {
@@ -97,6 +98,10 @@ namespace mimij
                 {
                     break;
                 }
+                if((pos == 0 || pos == 2)&&Simbolo.First().name == "Decl")
+                {
+                    lActual = Tokens.First().line;
+                }
                 if (pos == 0 && error)
                 {
                     //resetear la pila
@@ -131,48 +136,53 @@ namespace mimij
             var actions = string.Empty;
             if (reducction == 0)
             {
+                int estadoA;
+                bool epsilon = false;
                 var valor = (Estado.ContainsKey(Tokens.First().name)) ? Tokens.First().name : esUnTerminalDiferente();
                 actions = Estado[valor];
-                if (actions != string.Empty)
+                if(actions ==string.Empty)
                 {
-                    int estadoA;
-                    if (actions[0] == 's')
+                    actions = Estado["e"];
+                    if(actions == string.Empty)
                     {
-                        estadoA = Convert.ToInt32(actions.Substring(1));
-                        Pila.Push(estadoA);
-                        Simbolo.Push(Tokens.First());
-                        Tokens.Dequeue();
-                        lActual = Tokens.First().line;
-                        return estadoA;
+                        Console.WriteLine("El token {0} localizado en la linea {1} es incorrecto", Tokens.First().name, lActual);
+                        error = true;
+                        cantError++;
+                        return 0;
                     }
-                    else if (actions[0] == 'r')
-                    {
-                        estadoA = Convert.ToInt32(actions.Substring(1));
-                        var producction = producciones[estadoA];
-                        var simbol = producction.Keys;
-                        var cantidadRemover = producction[simbol.First()];
-                        for (int i = 0; i < cantidadRemover; i++)
-                        {
-                            Pila.Pop();
-                            Simbolo.Pop();
-                        }
-                        var tokenAux = new Token(simbol.First(), 0, 0, 0);
-                        Simbolo.Push(tokenAux);
-                        reducction = 1;
-                        return Pila.First();
-                    }
-                    else if (actions == "acc")
-                    {
-                        aceptar = true;
-                        return 1;
-                    }
+                    epsilon = true;
                 }
-                else
+                if (actions[0] == 's')
                 {
-                    Console.WriteLine("El token {0} localizado en la linea {1} es incorrecto", Tokens.First().name, lActual);
-                    error = true;
-                    cantError++;
-                    return 0;
+                    estadoA = Convert.ToInt32(actions.Substring(1));
+                    Pila.Push(estadoA);
+                    Simbolo.Push(Tokens.First());
+                    if (!epsilon)
+                    {
+                        Tokens.Dequeue();
+                    }
+                    return estadoA;
+                }
+                else if (actions[0] == 'r')
+                {
+                    estadoA = Convert.ToInt32(actions.Substring(1));
+                    var producction = producciones[estadoA];
+                    var simbol = producction.Keys;
+                    var cantidadRemover = producction[simbol.First()];
+                    for (int i = 0; i < cantidadRemover; i++)
+                    {
+                        Pila.Pop();
+                        Simbolo.Pop();
+                    }
+                    var tokenAux = new Token(simbol.First(), 0, 0, 0);
+                    Simbolo.Push(tokenAux);
+                    reducction = 1;
+                    return Pila.First();
+                }
+                else if (actions == "acc")
+                {
+                    aceptar = true;
+                    return 1;
                 }
             }
             else
