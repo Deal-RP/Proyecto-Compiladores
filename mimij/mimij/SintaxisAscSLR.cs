@@ -21,7 +21,7 @@ namespace mimij
         static int reducction = 0;
         static bool error = false;
         static bool aceptar = false;
-        static int lActual = 0;
+        static int lActual = 1;
         static int cantError = 0;
         static _Application excel = new _Excel.Application();
         static string newPath = Environment.CurrentDirectory.Substring(0, Environment.CurrentDirectory.IndexOf("\\bin"));
@@ -99,19 +99,22 @@ namespace mimij
                 }
                 if (pos == 0 && error)
                 {
+                    //resetear la pila
+                    Pila = new Stack<int>();
+                    Simbolo = new Stack<Token>();
+                    Pila.Push(0);
+                    //evaluar donde se encontrará
                     while (lActual == Tokens.First().line)
                     {
                         Tokens.Dequeue();
                     }
-                    if (Tokens.First().name == "$" && error)
+                    if (Tokens.First().name == "$")
                     {
                         break;
                     }
-                    //resetear la pila
-                    Pila = new Stack<int>();
-                    Simbolo = new Stack<Token>();
+                    //indicar que volverá a iniciar de 0
+                    error = false;
                 }
-                error = false;
             }
             if (cantError > 0)
             {
@@ -197,6 +200,8 @@ namespace mimij
                 case 1:
                     return "booleanConstant";
                 case 2:
+                    return "intConstant";
+                case 3:
                     return "intConstant";
                 case 4:
                     return "doubleConstant";
