@@ -1,16 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
+using System.Data;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Microsoft.Office.Interop.Excel;
-using _Excel = Microsoft.Office.Interop.Excel;
-using Microsoft.Office.Interop.Excel;
-using System.Data;
 using System.Threading;
-using System.Security.Cryptography;
 
 namespace mimij
 {
@@ -24,38 +17,33 @@ namespace mimij
         static bool aceptar = false;
         static int lActual = 1;
         static int cantError = 0;
-        static _Application excel = new _Excel.Application();
         static string newPath = Environment.CurrentDirectory.Substring(0, Environment.CurrentDirectory.IndexOf("\\bin"));
-        static Workbook wb = excel.Workbooks.Open(Path.Combine(newPath, "AnalisiSintactico", "Tabla.xlsx"));
-        static Worksheet ws = wb.Worksheets[1];
-        static Range range;
-        static Thread t;
-        static string getValueCell(int x, int y)
-        {
-            var celda = (range.Cells[y, x] as Range).Value2;
-            return celda == null ? "" : Convert.ToString(celda);
-        }
         static void loadTabla()
         {
-            range = ws.UsedRange;
-            var rw = range.Rows.Count;
-            var cl = range.Columns.Count;
-            var columnBase = new List<string>();
-            for (int i = 2; i <= cl; i++)
+            using (var sr = new StreamReader(Path.Combine(newPath, "AnalisiSintactico", "Tabla.txt")))
             {
-                columnBase.Add(getValueCell(i, 1));
-            }
-            for (int i = 2; i <= rw; i++)
-            {
-                var dicFila = new Dictionary<string, string>();
-                for (int j = 2; j < cl; j++)
+                var cont = 0;
+                var columnBase = new List<string>();
+                var line = sr.ReadLine();
+                var split = line.Split('_');
+                //Numero de columnas
+                for (int i = 1; i < 75; i++)
                 {
-                    dicFila.Add(columnBase[j - 2], getValueCell(j, i));
+                    columnBase.Add(split[i]);
                 }
-                Tabla.Add(i - 2, dicFila);
+                while ((line = sr.ReadLine()) != null)
+                {
+                    var dicFila = new Dictionary<string, string>();
+                    split = line.Split('_');
+                    //Numero de columnas
+                    for (int i = 1; i < 75; i++)
+                    {
+                        dicFila.Add(columnBase[i - 1], split[i]);
+                    }
+                    Tabla.Add(cont, dicFila);
+                    cont++;
+                }
             }
-            wb.Close(true, null, null);
-            excel.Quit();
         }
         static void loadGramatica()
         {
@@ -70,18 +58,15 @@ namespace mimij
                     producciones.Add(cont, new Dictionary<string, int> { { produc[0], cantProduc.Length } });
                     cont++;
                 }
-                file.Close();
             }
         }
-        static public void load()
+        public static void load()
         {
-            t = new Thread(new ThreadStart(loadTabla));
-            t.Start();
             loadGramatica();
+            loadTabla();
         }
         public static void Parse()
         {
-            t.Join();
             //pila
             var Pila = new Stack<int>();
             Pila.Push(0);
