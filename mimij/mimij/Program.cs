@@ -28,21 +28,25 @@ namespace mimij
                         var start = 0;
                         var i = 1;
                         var lexema = string.Empty;
+                        var specialCase = false;
                         while (start != frase.Length && i < frase.Length + 1)
                         {
                             lexema = frase.Substring(start, i - start);
                             var tipo = Validation.identificar(lexema);
-                            if (tipo == 0)
+                            if (!specialCase && tipo == 0)
                             {
-                                var specialCase = false;
                                 if (lexema == "int" && frase.Length >= i + 6 && frase.Substring(start, i - start + 6) == "interface")
                                 {
-                                    specialCase = true;
-                                    i += 5;
+                                    i += 6; 
+                                    lexema = frase.Substring(start, i - start);
                                 }
-                                if (lexema == "System" && frase.Length >= i + 12 && frase.Substring(start, i - start + 12) == "System.out.println")
+                                else if (lexema == "System" && frase.Length >= i + 12 && frase.Substring(start, i - start + 12) == "System.out.println")
                                 {
-                                    i += 11;
+                                    i += 12;
+                                    lexema = frase.Substring(start, i - start);
+                                }
+                                else if (lexema == "System")
+                                {
                                     specialCase = true;
                                 }
                                 if (!specialCase)
@@ -50,6 +54,7 @@ namespace mimij
                                     Validation.fileWriting(lexema, countLinea, start, tipo);
                                     lexema = string.Empty;
                                     start = i;
+                                    specialCase = false;
                                 }
                             }
                             else if (lexema == " "|| lexema == "\t")

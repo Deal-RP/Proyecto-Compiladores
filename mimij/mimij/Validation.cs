@@ -97,9 +97,22 @@ namespace mimij
                     comentado = true;
                     break;
                 case 8:break;
+                case 0:
+                    if (lexema.Substring(0, 6) == "System")
+                    { 
+                        Validation.fileWriting(lexema.Substring(0, 6), line, start, 6); 
+                        lexema = string.Empty; 
+                    }
+                    else
+                    {
+                        lexema = frase.Substring(start, i - start - 1);
+                        Validation.fileWriting(lexema, line, start, auxTipo);
+                        lexema = string.Empty;
+                    }
+                    break;
                 default:
                     lexema = frase.Substring(start, i - start - 1);
-                        Validation.fileWriting(lexema, line, start, auxTipo);
+                    Validation.fileWriting(lexema, line, start, auxTipo);
                     lexema = string.Empty;
                     break;
             }
