@@ -16,7 +16,7 @@ namespace mimij
             var listER = new List<string>()
             {
                 //PALABRA RESERVADA
-                "^void$|^interface$|^double$|^boolean$|^string$|^class$|^static$|^int$|^null$|^this$|^extends$|^implements$|^for$|^while$|^if$|^else$|^return$|^break$|^New$|^System.out.println$",
+                "^void$|^interface$|^double$|^boolean$|^string$|^class$|^static$|^int$|^null$|^this$|^extends$|^implements$|^for$|^while$|^if$|^else$|^return$|^break$|^New$|^System.out.println$|^System$",
                 //BOOLEAN
                 "^true$|^false$",
                 //ENTERO

@@ -39,7 +39,7 @@ ConstDecl -> static TYPEX ident ; ConstDecl
 ConstDecl -> e
 StmtX -> Stmt StmtX
 StmtX -> e
-Stmt -> Expr ; 
+Stmt -> Expr ;
 Stmt -> ;
 Stmt -> if ( Expr ) Stmt ElseStmt
 Stmt -> while ( Expr ) Stmt

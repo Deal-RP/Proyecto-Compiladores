@@ -34,14 +34,23 @@ namespace mimij
                             var tipo = Validation.identificar(lexema);
                             if (tipo == 0)
                             {
+                                var specialCase = false;
                                 if (lexema == "int" && frase.Length >= i + 6 && frase.Substring(start, i - start + 6) == "interface")
                                 {
-                                    lexema = frase.Substring(start, i - start + 6);
-                                    i += 6;
+                                    specialCase = true;
+                                    i += 5;
                                 }
-                                Validation.fileWriting(lexema, countLinea, start, tipo);
-                                lexema = string.Empty;
-                                start = i;
+                                if (lexema == "System" && frase.Length >= i + 12 && frase.Substring(start, i - start + 12) == "System.out.println")
+                                {
+                                    i += 11;
+                                    specialCase = true;
+                                }
+                                if (!specialCase)
+                                {
+                                    Validation.fileWriting(lexema, countLinea, start, tipo);
+                                    lexema = string.Empty;
+                                    start = i;
+                                }
                             }
                             else if (lexema == " "|| lexema == "\t")
                             {

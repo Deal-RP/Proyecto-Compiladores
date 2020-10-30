@@ -80,6 +80,7 @@ namespace mimij
             while (Tokens.Count() != 0)
             {
                 pos = Action(ref Pila, ref Simbolo, ref Tokens, Tabla[pos]);
+                
                 if (pos == 1 && aceptar)
                 {
                     break;
@@ -94,6 +95,7 @@ namespace mimij
                     Pila = new Stack<int>();
                     Simbolo = new Stack<Token>();
                     Pila.Push(0);
+                    reducction = 0;
                     //evaluar donde se encontrará
                     while (lActual == Tokens.First().line)
                     {
@@ -206,10 +208,10 @@ namespace mimij
                     return "intConstant";
                 case 4:
                     return "doubleConstant";
-                case 7:
-                    return "stringConstant";
                 case 6:
                     return "ident";
+                case 7:
+                    return "stringConstant";
                 default: return "e";
             }
         }
