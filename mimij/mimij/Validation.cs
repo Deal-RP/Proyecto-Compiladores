@@ -134,10 +134,6 @@ namespace mimij
                 Console.WriteLine(escritura);
                 error++;
             }
-            else
-            {
-                SintaxisAscSLR.Tokens.Enqueue(new Token(name, line, columnFirst, tipo));
-            }
             using (var writer = new StreamWriter(Path.Combine(path, $"{txtName}.out"), append: true))
             {
                 writer.WriteLine(escritura);
