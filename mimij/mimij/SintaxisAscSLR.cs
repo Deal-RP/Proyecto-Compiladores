@@ -97,6 +97,10 @@ namespace mimij
                     //evaluar donde se encontrará
                     while (lActual == Tokens.First().line)
                     {
+                        if (Tokens.First().name == "$")
+                        {
+                            break;
+                        }
                         Tokens.Dequeue();
                     }
                     if (Tokens.First().name == "$")
@@ -124,7 +128,7 @@ namespace mimij
             {
                 int estadoA;
                 bool epsilon = false;
-                var valor = (Estado.ContainsKey(Tokens.First().name)) ? Tokens.First().name : esUnTerminalDiferente();
+                var valor = (Estado.ContainsKey(Tokens.First().name) && EsTerminal(Tokens.First().name)) ? Tokens.First().name : esUnTerminalDiferente();
                 actions = Estado[valor];
                 if(actions ==string.Empty)
                 {
@@ -170,13 +174,6 @@ namespace mimij
                     aceptar = true;
                     return 1;
                 }
-                else
-                {
-                    Console.WriteLine("El token {0} localizado en la linea {1} es incorrecto", Tokens.First().name, Tokens.First().line);
-                    error = true;
-                    cantError++;
-                    return 0;
-                }
             }
             else
             {
@@ -195,6 +192,7 @@ namespace mimij
                     return 0;
                 }
             }
+            return 0;
         }
         private static string esUnTerminalDiferente()
         {
@@ -213,6 +211,73 @@ namespace mimij
                 case 6:
                     return "ident";
                 default: return "e";
+            }
+        }
+
+        private static bool EsTerminal(string Token)
+        {
+            switch(Token)
+            {
+                case "Program":
+                    return false;
+                case "Decl":
+                    return false;
+                case "TYPEX":
+                    return false;
+                case "Type":
+                    return false;
+                case "Formals":
+                    return false;
+                case "Extends":
+                    return false;
+                case "Implements":
+                    return false;
+                case "Ident":
+                    return false;
+                case "FieldX":
+                    return false;
+                case "Field":
+                    return false;
+                case "PrototypeS":
+                    return false;
+                case "Prototype":
+                    return false;
+                case "StmtBlock":
+                    return false;
+                case "VariableDecl":
+                    return false;
+                case "ConstDecl":
+                    return false;
+                case "StmtX":
+                    return false;
+                case "Stmt":
+                    return false;
+                case "ElseStmt":
+                    return false;
+                case "ExprX":
+                    return false;
+                case "Expr":
+                    return false;
+                case "A":
+                    return false;
+                case "AX":
+                    return false;
+                case "B":
+                    return false;
+                case "C":
+                    return false;
+                case "D":
+                    return false;
+                case "E":
+                    return false;
+                case "F":
+                    return false;
+                case "G":
+                    return false;
+                case "H":
+                    return false;
+                default:
+                    return true;
             }
         }
     }
