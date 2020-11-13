@@ -144,6 +144,18 @@ namespace mimij
                     }
                     epsilon = true;
                 }
+                if(actions.Contains('/'))
+                {
+                    var tAux1 = Tokens.First();
+                    Tokens.Dequeue();
+                    var tAux2 = Tokens.First();
+                    Tokens.Dequeue();
+                    var tAux3 = Tokens.First();
+                    Tokens.Enqueue(tAux2);
+                    Tokens.Enqueue(tAux1);
+                    var opciones = actions.Split('/');
+                    actions = (tAux2.tipo == 6 &&tAux3.name == ")") ? opciones[0]: opciones[1];
+                }
                 if (actions[0] == 's')
                 {
                     estadoA = Convert.ToInt32(actions.Substring(1));
