@@ -66,7 +66,7 @@ namespace mimij
             loadGramatica();
             loadTabla();
         }
-        public static void Parse()
+        public static bool Parse()
         {
             //pila
             var Pila = new Stack<int>();
@@ -74,7 +74,7 @@ namespace mimij
             //simbolo
             var Simbolo = new Stack<Token>();
             //Entrada
-            var tokenAux = new Token("$", 0, 0, 0);
+            var tokenAux = new Token("$", 0, 0, 0, string.Empty,string.Empty, string.Empty);
             Tokens.Enqueue(tokenAux);
             var pos = 0;
             while (Tokens.Count() != 0)
@@ -117,10 +117,12 @@ namespace mimij
             if (cantError > 0)
             {
                 Console.WriteLine("Error: La cadena no es aceptada");
+                return false;
             }
             else
             {
                 Console.WriteLine("Cadena aceptada");
+                return true;
             }
         }
         private static int Action(ref Stack<int> Pila, ref Stack<Token> Simbolo, ref Queue<Token> Tokens, Dictionary<string, string> Estado)
@@ -166,7 +168,7 @@ namespace mimij
                         Pila.Pop();
                         Simbolo.Pop();
                     }
-                    var tokenAux = new Token(simbol.First(), 0, 0, 0);
+                    var tokenAux = new Token(simbol.First(), 0, 0, 0, string.Empty,string.Empty, string.Empty);
                     Simbolo.Push(tokenAux);
                     reducction = 1;
                     return Pila.First();
