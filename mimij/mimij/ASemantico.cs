@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -16,6 +17,8 @@ namespace mimij
         public static Token Token;
         public static Token Token2;
         public static string ClassName = string.Empty;
+        public static string path;
+        public static string txtName;
         public static string EncontrarTipo(Token token)
         {
             switch (token.name)
@@ -35,8 +38,10 @@ namespace mimij
             }
             return string.Empty;
         }
-        public static void Recorrido()
+        public static void Recorrido(string Path, string TXT)
         {
+            path = Path;
+            txtName = TXT;
             for (i = 0; i < TokensList.Count(); i++)
             {
                 //Variable Declaration
@@ -75,7 +80,9 @@ namespace mimij
                 //FunctionDeclaration
                 else if (TokensList[i].name == "void")
                 {
-                    //es un procedimiento
+                    //procedimientos
+                    i++;
+                    processDecl();
                 }
                 //Constdeclaration
                 else if (TokensList[i].name == "static")
@@ -105,6 +112,50 @@ namespace mimij
                 Console.WriteLine("EL ARCHIVO POSEE ERRORES SEMÁNTICOS");
             }
         }
+        public static void processDecl()
+        {
+            //verificar que el token sea unico o no
+            var encontrarIgual = TablaSimbolos.Find(X => X.name == TokensList[i].name&& X.tipoFP =="G");
+            if (encontrarIgual == null)
+            {
+                Token = TokensList[i];
+                Token.ubicación = "G";
+                TablaSimbolos.Add(Token);
+            }
+            else
+            {
+                cantError++;
+                escribirError(1, TokensList[i]);
+            }
+            i+=2 ;
+            //validar las variables del procedimiento
+            while(TokensList[i].name!= ")")
+            {
+                if(TokensList[i].name != ",")
+                {
+                    //verificar el tipo
+                    tipo = EncontrarTipo(TokensList[i]);
+                    //verificar la variable si existe en ese ámbito
+                    encontrarIgual = TablaSimbolos.Find(X=>X.name == TokensList[i].name && X.ubicación == Token.name);
+                    if(encontrarIgual == null)
+                    {
+                        //almacenar el token en la tabla con los datos
+                        Token2 = TokensList[i];
+                        Token2.ubicación = Token.name;
+                        Token2.tipoFP = tipo;
+                        TablaSimbolos.Add(Token2);
+                    }
+                    else
+                    {
+                        cantError++;
+                        escribirError(1, TokensList[i]);
+                    }
+                }
+                i++;
+            }
+            //validar los STMT
+        }
+
         public static void constDecl()
         {
             tipo = EncontrarTipo(TokensList[i]);
@@ -126,7 +177,7 @@ namespace mimij
         }
         public static void interfaceDecl()
         {
-            var encontrarIgual = TablaSimbolos.Find(X => X.name == TokensList[i].name);
+            var encontrarIgual = TablaSimbolos.Find(X => X.name == TokensList[i].name && X.tipoFP =="G");
             if (encontrarIgual == null)
             {
                 Token = TokensList[i];
@@ -144,7 +195,7 @@ namespace mimij
                 {
                     tipo = EncontrarTipo(TokensList[i]);
                     i++;
-                    encontrarIgual = TablaSimbolos.Find(X => X.name == TokensList[i].name && X.ubicación == Token.name);
+                    encontrarIgual = TablaSimbolos.Find(X => (X.name == TokensList[i].name && X.ubicación == Token.name)||(X.ubicación == "G"&& X.name == TokensList[i].name));
                     if (encontrarIgual == null)
                     {
                         Token2 = TokensList[i];
@@ -183,7 +234,7 @@ namespace mimij
                 else if(TokensList[i].name == "void")
                 {
                     i++;
-                    encontrarIgual = TablaSimbolos.Find(X => X.name == TokensList[i].name&&X.ubicación == Token.name);
+                    encontrarIgual = TablaSimbolos.Find(X => (X.name == TokensList[i].name && X.ubicación == Token.name) || (X.ubicación == "G" && X.name == TokensList[i].name));
                     if (encontrarIgual == null)
                     {
                         Token2 = TokensList[i];
@@ -230,6 +281,18 @@ namespace mimij
                     break;
                 case 2:
                      break;
+            }
+        }
+        public static void EscrituraArchivo()
+        {
+            var escritura = string.Empty;
+
+
+            var separacion = "----------------------------------------------------------------------------------------------------------------------------------";
+            using (var writer = new StreamWriter(Path.Combine(path, $"{txtName}_Semantico.out"), append: true))
+            {
+                writer.WriteLine(escritura);
+                writer.WriteLine(separacion);
             }
         }
     }

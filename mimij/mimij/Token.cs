@@ -28,5 +28,14 @@ namespace mimij
             tipoFP = TipoFP;
             ubicación = Ubicación;
         }
+
+        void pruebas()
+        {
+
+        }
+        interface prueba
+        {
+            int prueba();
+        }
     }
 }
