@@ -33,13 +33,13 @@ PrototypeS -> e
 Prototype -> void ident ( Formals ) ;
 Prototype -> Type ident ( Formals ) ;
 StmtBlock -> { VCM }
-VCM -> VariableDecl
-VCM -> ConstDecl
-VCM -> StmtX
+VCM -> VariableDecl VCM
+VCM -> ConstDecl VCM
+VCM -> StmtX VCM
 VCM -> e
-VariableDecl -> Type ident ; VariableDecl
-ConstDecl -> static TYPEX ident ; ConstDecl
-StmtX -> Stmt StmtX
+VariableDecl -> Type ident ;
+ConstDecl -> static TYPEX ident ;
+StmtX -> Stmt
 Stmt -> Expr ;
 Stmt -> ;
 Stmt -> if ( Expr ) Stmt ElseStmt
