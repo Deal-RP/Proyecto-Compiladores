@@ -10,7 +10,9 @@ namespace mimij
     class ASemantico
     {
         public static List<Token> TablaSimbolos = new List<Token>();
+        public static List<Token> Auxiliar = new List<Token>();
         public static List<Token> Tokens = new List<Token>();
+        public static string tipoS;
         public static int i = 0;
         static int reducction = 0;
         static bool error = false;
@@ -94,9 +96,16 @@ namespace mimij
                     var cantidadRemover = producction[simbol.First()];
                     for (int i = 0; i < cantidadRemover; i++)
                     {
+                        //insertar cada token en la lista auxiliar para validar que no sea un token
                         Pila.Pop();
-                        Simbolo.Pop();
+                        Auxiliar.Add(Simbolo.Pop());
                     }
+                    //al momento de realizar una reducción validar que no exista dicho token en la lista en caso la reducción sea de una variable
+                    Validar(actions);
+                    
+
+                    
+
                     var tokenAux = new Token(simbol.First(), 0, 0, 0, string.Empty, string.Empty, string.Empty);
                     Simbolo.Push(tokenAux);
                     reducction = 1;
@@ -204,6 +213,14 @@ namespace mimij
                     return false;
                 default:
                     return true;
+            }
+        }
+
+        private static void Validar(string redu)
+        {
+            if()
+            {
+
             }
         }
     }
