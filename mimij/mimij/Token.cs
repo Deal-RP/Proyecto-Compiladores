@@ -14,28 +14,19 @@ namespace mimij
         public int columnFirst { get; set; }
         public int columnEnd { get; set; }
         public int tipo { get; set; }
-        public string value { get; set; }
-        public string tipoFP { get; set; }
-        public string ubicación { get; set; }
-        public Token(string Name, int Line, int Column, int Tipo, string Value, string TipoFP, string Ubicación)
+        public string valor { get; set; }
+        public string tipoAS { get; set; }
+        public string subnivel { get; set; }
+        public Token(string Name, int Line, int Column, int Tipo, string Valor, string TipoAS, string subNivel)
         {
             name = Name;
             line = Line;
             columnFirst = Column;
             columnEnd = columnFirst + Name.Length;
             tipo = Tipo;
-            value = value;
-            tipoFP = TipoFP;
-            ubicación = Ubicación;
-        }
-
-        void pruebas()
-        {
-
-        }
-        interface prueba
-        {
-            int prueba();
+            valor = Valor;
+            tipoAS = TipoAS;
+            subnivel = subNivel;
         }
     }
 }

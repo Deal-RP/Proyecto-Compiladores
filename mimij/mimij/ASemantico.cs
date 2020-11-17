@@ -10,289 +10,200 @@ namespace mimij
     class ASemantico
     {
         public static List<Token> TablaSimbolos = new List<Token>();
-        public static List<Token> TokensList = new List<Token>();
+        public static List<Token> Tokens = new List<Token>();
         public static int i = 0;
-        public static int cantError = 0;
-        public static string tipo = string.Empty;
-        public static Token Token;
-        public static Token Token2;
-        public static string ClassName = string.Empty;
+        static int reducction = 0;
+        static bool error = false;
+        static bool aceptar = false;
+        static int lActual = 1;
         public static string path;
+        public static int cantError = 0;
         public static string txtName;
-        public static string EncontrarTipo(Token token)
+        public static bool Parse()
         {
-            switch (token.name)
+            //pila
+            var Pila = new Stack<int>();
+            Pila.Push(0);
+            //simbolo
+            var Simbolo = new Stack<Token>();
+            //Entrada
+            var tokenAux = new Token("$", 0, 0, 0, string.Empty, string.Empty, string.Empty);
+            Tokens.Add(tokenAux);
+            var pos = 0;
+            while (Tokens.Count() != 0)
             {
-                case "int":
-                    return "int";
-                case "boolean":
-                    return "boolean";
-                case "double":
-                    return "double";
-                case "string":
-                    return "string";
-            }
-            if (token.tipo == 6)
-            {
-                return token.name;
-            }
-            return string.Empty;
-        }
-        public static void Recorrido(string Path, string TXT)
-        {
-            path = Path;
-            txtName = TXT;
-            for (i = 0; i < TokensList.Count(); i++)
-            {
-                //Variable Declaration
-                if (EncontrarTipo(TokensList[i]) != string.Empty)
-                {
-                    //validar si es una variable
-                    tipo = EncontrarTipo(TokensList[i]);
-                    i++;
-                    //validar si contiene []
-                    while (TokensList[i].tipo != 6)
-                    {
-                        i++;
-                    }
-                    //almacenar el token en una variable y verificar si ese token no existe ya
-                    var encontrarIgual = TablaSimbolos.Find(X => X.name == TokensList[i].name);
-                    if (encontrarIgual == null)
-                    {
-                        //almacenar el token en la tabla de simbolos
-                        Token = TokensList[i];
-                        Token.tipoFP = tipo;
-                        Token.ubicación = "G";
-                        TablaSimbolos.Add(Token);
-                        i++;
-                        //verificar si es una función o una variable
-                        if (TokensList[i].name != ";")
-                        {
-                            //es una función
-                        }
-                    }
-                    else
-                    {
-                        cantError++;
-                        escribirError(1, TokensList[i]);
-                    }
-                }
-                //FunctionDeclaration
-                else if (TokensList[i].name == "void")
-                {
-                    //procedimientos
-                    i++;
-                    processDecl();
-                }
-                //Constdeclaration
-                else if (TokensList[i].name == "static")
-                {
-                    i++;
-                    constDecl();
-                }
-                //Classdeclaration
-                else if (TokensList[i].name == "class")
-                {
+                pos = Action(ref Pila, ref Simbolo, ref Tokens, SintaxisAscSLR.Tabla[pos]);
 
+                if (pos == 1 && aceptar)
+                {
+                    break;
                 }
-                //Interfacedeclaration
-                else if (TokensList[i].name == "interface")
+                if (!error)
                 {
-                    i++;
-                    interfaceDecl();
-                }                
-                tipo = string.Empty;
-            }
-            if (cantError == 0)
-            {
-                Console.WriteLine("EL ARCHIVO NO POSEE NINGÚN ERROR SEMÁNTICO");
-            }
-            else
-            {
-                Console.WriteLine("EL ARCHIVO POSEE ERRORES SEMÁNTICOS");
-            }
-        }
-        public static void processDecl()
-        {
-            //verificar que el token sea unico o no
-            var encontrarIgual = TablaSimbolos.Find(X => X.name == TokensList[i].name&& X.tipoFP =="G");
-            if (encontrarIgual == null)
-            {
-                Token = TokensList[i];
-                Token.ubicación = "G";
-                TablaSimbolos.Add(Token);
-            }
-            else
-            {
-                cantError++;
-                escribirError(1, TokensList[i]);
-            }
-            i+=2 ;
-            //validar las variables del procedimiento
-            while(TokensList[i].name!= ")")
-            {
-                if(TokensList[i].name != ",")
-                {
-                    //verificar el tipo
-                    tipo = EncontrarTipo(TokensList[i]);
-                    //verificar la variable si existe en ese ámbito
-                    encontrarIgual = TablaSimbolos.Find(X=>X.name == TokensList[i].name && X.ubicación == Token.name);
-                    if(encontrarIgual == null)
-                    {
-                        //almacenar el token en la tabla con los datos
-                        Token2 = TokensList[i];
-                        Token2.ubicación = Token.name;
-                        Token2.tipoFP = tipo;
-                        TablaSimbolos.Add(Token2);
-                    }
-                    else
-                    {
-                        cantError++;
-                        escribirError(1, TokensList[i]);
-                    }
+                    lActual = Tokens.First().line;
                 }
-                i++;
             }
-            //validar los STMT
-        }
-
-        public static void constDecl()
-        {
-            tipo = EncontrarTipo(TokensList[i]);
-            i++;
-            var encontrarIgual = TablaSimbolos.Find(X => X.name == TokensList[i].name);
-            if (encontrarIgual == null)
+            if (cantError > 0)
             {
-                Token = TokensList[i];
-                Token.tipoFP = tipo;
-                Token.ubicación = "G";
-                TablaSimbolos.Add(Token);
+                Console.WriteLine("Error: La cadena no es aceptada");
+                return false;
             }
             else
             {
-                cantError++;
-                escribirError(1, TokensList[i]);
+                Console.WriteLine("Cadena aceptada");
+                return true;
             }
-            i++;
         }
-        public static void interfaceDecl()
+        private static int Action(ref Stack<int> Pila, ref Stack<Token> Simbolo, ref List<Token> Tokens, Dictionary<string, string> Estado)
         {
-            var encontrarIgual = TablaSimbolos.Find(X => X.name == TokensList[i].name && X.tipoFP =="G");
-            if (encontrarIgual == null)
+            var actions = string.Empty;
+            if (reducction == 0)
             {
-                Token = TokensList[i];
-                Token.ubicación = "G";
-                TablaSimbolos.Add(Token); 
-            }
-            else
-            {
-                cantError++;
-                escribirError(1, TokensList[i]);
-            }
-            while(TokensList[i].name !="}")
-            {
-                if (EncontrarTipo(TokensList[i]) != string.Empty)
+                int estadoA;
+                bool epsilon = false;
+                var valor = (Estado.ContainsKey(Tokens.First().name) && EsTerminal(Tokens.First().name)) ? Tokens.First().name : esUnTerminalDiferente();
+                actions = Estado[valor];
+                if (actions == string.Empty)
                 {
-                    tipo = EncontrarTipo(TokensList[i]);
-                    i++;
-                    encontrarIgual = TablaSimbolos.Find(X => (X.name == TokensList[i].name && X.ubicación == Token.name)||(X.ubicación == "G"&& X.name == TokensList[i].name));
-                    if (encontrarIgual == null)
+                    actions = Estado["e"];
+                    if (actions == string.Empty)
                     {
-                        Token2 = TokensList[i];
-                        Token2.ubicación = Token.name;
-                        Token2.tipoFP = tipo;
-                        TablaSimbolos.Add(Token2);
-                    }
-                    else
-                    {
+                        Console.WriteLine("El token {0} localizado en la linea {1} es incorrecto", Tokens.First().name, Tokens.First().line);
+                        error = true;
                         cantError++;
-                        escribirError(1, TokensList[i]);
+                        return 0;
                     }
-                    i += 2;
-                    while (TokensList[i].name != ")")
-                    {
-                        if (TokensList[i].name != ",")
-                        {
-                            tipo = EncontrarTipo(TokensList[i]);
-                            i++;
-                            encontrarIgual = TablaSimbolos.Find(X => X.name == TokensList[i].name && X.ubicación == Token.name + Token2.name);
-                            if (encontrarIgual == null)
-                            {
-                                TokensList[i].tipoFP = tipo;
-                                TokensList[i].ubicación = Token.name + Token2.name;
-                                TablaSimbolos.Add(TokensList[i]);
-                            }
-                            else
-                            {
-                                cantError++;
-                                escribirError(1, TokensList[i]);
-                            }
-                        }
-                        i++;
-                    }
-                }    
-                else if(TokensList[i].name == "void")
-                {
-                    i++;
-                    encontrarIgual = TablaSimbolos.Find(X => (X.name == TokensList[i].name && X.ubicación == Token.name) || (X.ubicación == "G" && X.name == TokensList[i].name));
-                    if (encontrarIgual == null)
-                    {
-                        Token2 = TokensList[i];
-                        Token2.ubicación = Token.name;
-                        TablaSimbolos.Add(Token2);
-                    }
-                    else
-                    {
-                        cantError++;
-                        escribirError(1, TokensList[i]);
-                    }
-                    i +=2;
-                    while (TokensList[i].name != ")")
-                    {
-                        if(TokensList[i].name!=",")
-                        {
-                            tipo = EncontrarTipo(TokensList[i]);
-                            i++;
-                            encontrarIgual = TablaSimbolos.Find(X => X.name == TokensList[i].name && X.ubicación == Token.name+Token2.name);
-                            if (encontrarIgual == null)
-                            {
-                                TokensList[i].tipoFP = tipo;
-                                TokensList[i].ubicación = Token.name + Token2.name;
-                                TablaSimbolos.Add(TokensList[i]);
-                            }
-                            else
-                            {
-                                cantError++;
-                                escribirError(1, TokensList[i]);
-                            }
-                        }
-                        i++;
-                    }
+                    epsilon = true;
                 }
-                i++;
+                if (actions[0] == 's')
+                {
+                    estadoA = Convert.ToInt32(actions.Substring(1));
+                    Pila.Push(estadoA);
+                    Simbolo.Push(Tokens.First());
+                    if (!epsilon)
+                    {
+                        Tokens.Remove(Tokens[0]);
+                    }
+                    return estadoA;
+                }
+                else if (actions[0] == 'r')
+                {
+                    estadoA = Convert.ToInt32(actions.Substring(1));
+                    var producction = SintaxisAscSLR.producciones[estadoA];
+                    var simbol = producction.Keys;
+                    var cantidadRemover = producction[simbol.First()];
+                    for (int i = 0; i < cantidadRemover; i++)
+                    {
+                        Pila.Pop();
+                        Simbolo.Pop();
+                    }
+                    var tokenAux = new Token(simbol.First(), 0, 0, 0, string.Empty, string.Empty, string.Empty);
+                    Simbolo.Push(tokenAux);
+                    reducction = 1;
+                    return Pila.First();
+                }
+                else if (actions == "acc")
+                {
+                    aceptar = true;
+                    return 1;
+                }
             }
+            else
+            {
+                actions = Estado[Simbolo.First().name];
+                if (actions != string.Empty)
+                {
+                    var value = Convert.ToInt32(actions);
+                    Pila.Push(value);
+                    reducction = 0;
+                    return value;
+                }
+            }
+            return 0;
         }
-        public static void escribirError(int numError, Token token)
+        private static string esUnTerminalDiferente()
         {
-            switch(numError)
+            switch (Tokens.First().tipo)
             {
                 case 1:
-                    Console.WriteLine($"TOKEN EN LINEA: {token.line} Y COLUMNA {token.columnFirst} - {token.columnEnd} : **ERROR** IDENTIFICADOR YA DECLARADO ");
-                    break;
+                    return "booleanConstant";
                 case 2:
-                     break;
+                    return "intConstant";
+                case 3:
+                    return "intConstant";
+                case 4:
+                    return "doubleConstant";
+                case 6:
+                    return "ident";
+                case 7:
+                    return "stringConstant";
+                default: return "e";
             }
         }
-        public static void EscrituraArchivo()
+        private static bool EsTerminal(string Token)
         {
-            var escritura = string.Empty;
-
-
-            var separacion = "----------------------------------------------------------------------------------------------------------------------------------";
-            using (var writer = new StreamWriter(Path.Combine(path, $"{txtName}_Semantico.out"), append: true))
+            switch (Token)
             {
-                writer.WriteLine(escritura);
-                writer.WriteLine(separacion);
+                case "Program":
+                    return false;
+                case "Decl":
+                    return false;
+                case "TYPEX":
+                    return false;
+                case "Type":
+                    return false;
+                case "Formals":
+                    return false;
+                case "Extends":
+                    return false;
+                case "Implements":
+                    return false;
+                case "Ident":
+                    return false;
+                case "FieldX":
+                    return false;
+                case "Field":
+                    return false;
+                case "PrototypeS":
+                    return false;
+                case "Prototype":
+                    return false;
+                case "StmtBlock":
+                    return false;
+                case "VariableDecl":
+                    return false;
+                case "ConstDecl":
+                    return false;
+                case "StmtX":
+                    return false;
+                case "Stmt":
+                    return false;
+                case "ElseStmt":
+                    return false;
+                case "ExprX":
+                    return false;
+                case "Expr":
+                    return false;
+                case "A":
+                    return false;
+                case "AX":
+                    return false;
+                case "B":
+                    return false;
+                case "C":
+                    return false;
+                case "D":
+                    return false;
+                case "E":
+                    return false;
+                case "F":
+                    return false;
+                case "G":
+                    return false;
+                case "H":
+                    return false;
+                default:
+                    return true;
             }
         }
     }
