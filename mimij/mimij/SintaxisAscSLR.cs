@@ -27,7 +27,7 @@ namespace mimij
                 var line = sr.ReadLine();
                 var split = line.Split('_');
                 //Numero de columnas
-                for (int i = 1; i < 75; i++)
+                for (int i = 1; i < 77; i++)
                 {
                     columnBase.Add(split[i]);
                 }
@@ -36,7 +36,7 @@ namespace mimij
                     var dicFila = new Dictionary<string, string>();
                     split = line.Split('_');
                     //Numero de columnas
-                    for (int i = 1; i < 75; i++)
+                    for (int i = 1; i < 77; i++)
                     {
                         var accion = split[i] == " " ? string.Empty : split[i];
                         dicFila.Add(columnBase[i - 1], accion);
@@ -150,10 +150,11 @@ namespace mimij
                 if(actions.Contains('/'))
                 {
                     var actionsAux = actions.Split('/');
-                    var t1 = Tokens.Dequeue();
-                    var t2 = Tokens.First();
-                    Tokens.Enqueue(t1);
-                    actions = (t1.tipo == 6 && t2.name == "(") ? actionsAux[0] : actionsAux[1];
+                    var t1 = Tokens.ElementAt(0);
+                    var t2 = Tokens.ElementAt(1);
+                    var t3 = Tokens.ElementAt(2);
+                    actions = (t2.tipo == 6 && t3.name == "(") ? actionsAux[0] : actionsAux[1];
+                    actions = actions.Trim(' ');
                 }
                 if (actions[0] == 's')
                 {
