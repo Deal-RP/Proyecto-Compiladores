@@ -150,7 +150,7 @@ namespace mimij
             else
             {
                 SintaxisAscSLR.Tokens.Enqueue(new Token(name, line, columnFirst, tipo, string.Empty,string.Empty, string.Empty));
-                ASemantico.TokensList.Add(new Token(name, line, columnFirst, tipo, string.Empty, string.Empty, string.Empty));
+                ASemantico.Tokens.Add(new Token(name, line, columnFirst, tipo, string.Empty, string.Empty, string.Empty));
             }
             using (var writer = new StreamWriter(Path.Combine(path, $"{txtName}.out"), append: true))
             {

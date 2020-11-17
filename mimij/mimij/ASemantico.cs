@@ -21,8 +21,9 @@ namespace mimij
         public static string path;
         public static int cantError = 0;
         public static string txtName;
-        public static bool Parse()
+        public static bool Parse(string Path)
         {
+            path = Path;
             //pila
             var Pila = new Stack<int>();
             Pila.Push(0);
@@ -218,9 +219,95 @@ namespace mimij
 
         private static void Validar(string redu)
         {
-            if()
+            var encontrarIgual = new Token();
+            var identificador = new Token();
+            switch (redu)
             {
+                case "r3":
+                    //se realizó una declaración de variable
 
+                    break;
+                case "r6":
+
+                    break;
+                case "r9":
+                    //verificar que lo que siga sea el dentificador
+                    if(Tokens[0].tipo==6)
+                    {
+                        if(Tokens[1].name==";")
+                        {
+                            //verificar si existe ese token dentro de la tabla simbolos
+                            identificador = Auxiliar.Find(x => x.tipo == 6);
+                            encontrarIgual = TablaSimbolos.Find(x=> x.name == identificador.name);
+                            if(encontrarIgual == null)
+                            {
+                                //no existe dicho identificador
+                                //añadirlo a la tabla
+                                TablaSimbolos.Add(Tokens[0]);
+                            }
+                            else
+                            {
+                                //indicar ese error y no añadirlo a la tabla
+                            }
+                        }
+                        else
+                        {
+
+                        }
+                    }
+                    break;
+                case "r10":
+                    //verificar que lo que siga sea el dentificador
+                    if (Tokens[0].tipo == 6)
+                    {
+                        if (Tokens[1].name == ";")
+                        {
+                            //allí si validar que exista el token
+                        }
+                    }
+                    break;
+                case "r11":
+                    //verificar que lo que siga sea el dentificador
+                    if (Tokens[0].tipo == 6)
+                    {
+                        if (Tokens[1].name == ";")
+                        {
+                            //allí si validar que exista el token
+                        }
+                    }
+                    break;
+                case "r12":
+                    //verificar que lo que siga sea el dentificador
+                    if (Tokens[0].tipo == 6)
+                    {
+                        if (Tokens[1].name == ";")
+                        {
+                            //allí si validar que exista el token
+                        }
+                    }
+                    break;
+                case "r14":
+                    //verificar que lo que siga sea el dentificador
+                    if (Tokens[0].tipo == 6)
+                    {
+                        if (Tokens[1].name == ";")
+                        {
+                            //allí si validar que exista el token
+                        }
+                        else
+                        {
+
+                        }
+                    }
+                    break;
+            }
+        }
+
+        public void escrituraArchivo(string escritura)
+        {
+            using (var writer = new StreamWriter(Path.Combine(path, $"{Validation.txtName}_Semantico.out"), append: true))
+            {
+                writer.WriteLine(escritura);
             }
         }
     }

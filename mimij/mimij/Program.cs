@@ -91,7 +91,7 @@ namespace mimij
                 Console.WriteLine("Archivo Leido Exitosamente!!!!!.");
                 if (SintaxisAscSLR.Parse())
                 {
-                    ASemantico.Recorrido(path, Validation.txtName);
+                    ASemantico.Parse(path);
                 }
             }
             Console.ReadKey();

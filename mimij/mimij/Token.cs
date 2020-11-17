@@ -28,5 +28,9 @@ namespace mimij
             tipoAS = TipoAS;
             subnivel = subNivel;
         }
+
+        public Token()
+        {
+        }
     }
 }
