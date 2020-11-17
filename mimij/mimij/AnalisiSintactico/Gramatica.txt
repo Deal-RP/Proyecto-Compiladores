@@ -32,13 +32,14 @@ PrototypeS -> Prototype PrototypeS
 PrototypeS -> e
 Prototype -> void ident ( Formals ) ;
 Prototype -> Type ident ( Formals ) ;
-StmtBlock -> { VariableDecl ConstDecl StmtX }
+StmtBlock -> { VCM }
+VCM -> VariableDecl
+VCM -> ConstDecl
+VCM -> StmtX
+VCM -> e
 VariableDecl -> Type ident ; VariableDecl
-VariableDecl -> e
 ConstDecl -> static TYPEX ident ; ConstDecl
-ConstDecl -> e
 StmtX -> Stmt StmtX
-StmtX -> e
 Stmt -> Expr ;
 Stmt -> ;
 Stmt -> if ( Expr ) Stmt ElseStmt
@@ -48,9 +49,8 @@ Stmt -> break ;
 Stmt -> return Expr ;
 Stmt -> System.out.println ( ExprX ) ;
 Stmt -> StmtBlock
-Stmt -> CallStmt
-CallStmt -> ident ( Actuals )
-CallStmt -> ident . ident ( Actuals )
+Stmt -> ident ( Actuals )
+Stmt -> ident . ident ( Actuals )
 Actuals -> Expr , Actuals
 Actuals -> Expr
 ElseStmt -> else Stmt
