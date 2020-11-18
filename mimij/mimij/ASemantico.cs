@@ -29,6 +29,7 @@ namespace mimij
             //pila
             var Pila = new Stack<int>();
             Pila.Push(0);
+            ambitoBase.Push(0);
             //simbolo
             var Simbolo = new Stack<Token>();
             //Entrada
@@ -221,10 +222,16 @@ namespace mimij
                     MétodosParaEncontrar(1,1);
                     break;
                 case "r4":
-                   
+                    MetodosParaAmbitos(2);
+                    break;
+                case "r5":
+                    MetodosParaAmbitos(2);
                     break;
                 case "r6":
                     MétodosParaEncontrar(1,1);
+                    break;
+                case "r7":
+                    MetodosParaAmbitos(2);
                     break;
                 case "r9":
                     tipo.Push("int");
@@ -245,10 +252,30 @@ namespace mimij
                     tipo.Push(tipo.Pop()+"[]");
                     break;
                 case "r16":
+                    MetodosParaAmbitos(1);
                     MétodosParaEncontrar(1,2);
                     break;
                 case "r17":
+                    MetodosParaAmbitos(1);
                     MétodosParaEncontrar(1,0);
+                    break;
+                case "r18":
+                    MetodosParaAmbitos(3);
+                    break;
+                case "r19":
+                    MetodosParaAmbitos(3);
+                    break;
+                case "r26":
+                    MétodosParaEncontrar(1, 1);
+                    break;
+                case "r27":
+                    MetodosParaAmbitos(2);
+                    break;
+                case "r28":
+                    MetodosParaAmbitos(2);
+                    break;
+                case "r29":
+                    MétodosParaEncontrar(1, 1);
                     break;
                 case "r39":
                     MétodosParaEncontrar(1,1);
@@ -261,6 +288,35 @@ namespace mimij
                     break;
             }
         }
+        private static int ambito = 0;
+        private static Stack<int> ambitoBase = new Stack<int>();
+        private static bool aumento = false;
+        private static Dictionary<int, string> nombreAmbitos = new Dictionary<int, string>{ {0, "root" } };
+        private static void MetodosParaAmbitos(int caso)
+        {
+            switch (caso)
+            {
+                //Caso para Formals
+                case 1:
+                    if (!aumento)
+                    {
+                        aumento = true;
+                        ambito++;
+                        ambitoBase.Push(ambito);
+                    }
+                    break;
+                case 2:
+                    nombreAmbitos.Add(ambitoBase.Pop(), Auxiliar[Auxiliar.Count - 2].name);
+                    aumento = false;
+                    break;
+                case 3:
+                    ambito++;
+                    ambitoBase.Push(ambito);
+                    break;
+                default:
+                    break;
+            }
+        }
         private static void MétodosParaEncontrar(int numero, int numero2)
         {
             switch(numero)
@@ -268,10 +324,11 @@ namespace mimij
                 case 1:
                     var type = tipo.Pop();
                     var tok = Auxiliar[numero2];
-                    var Igual = TablaSimbolos.Find(X => X.name == tok.name);
+                    var Igual = TablaSimbolos.Find(X => X.name == tok.name && X.subnivel == tok.subnivel);
                     if (Igual == null)
                     {
                         tok.tipoAS = type;
+                        tok.subnivel = ambitoBase.Peek().ToString();
                         TablaSimbolos.Add(tok);
                     }
                     else
@@ -283,7 +340,7 @@ namespace mimij
                 case 2:
                     //esto es para el stmt de Expr de H -> ident
                     tok = Auxiliar[numero2];
-                    Igual = TablaSimbolos.Find(X => X.name == tok.name);
+                    Igual = TablaSimbolos.Find(X => X.name == tok.name && X.subnivel == tok.subnivel);
                     if (Igual == null)
                     {
                         cantError++;
