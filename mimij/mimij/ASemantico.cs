@@ -12,6 +12,7 @@ namespace mimij
         public static List<Token> TablaSimbolos = new List<Token>();
         public static List<Token> Auxiliar = new List<Token>();
         public static List<Token> Tokens = new List<Token>();
+        public static Stack<string> tipo = new Stack<string>();
         public static string tipoS;
         public static int i = 0;
         static int reducction = 0;
@@ -21,7 +22,7 @@ namespace mimij
         public static string path;
         public static int cantError = 0;
         public static string txtName;
-        public static bool Parse(string Path)
+        public static void Parse(string Path)
         {
             path = Path;
             //pila
@@ -46,15 +47,13 @@ namespace mimij
                     lActual = Tokens.First().line;
                 }
             }
-            if (cantError > 0)
+            if (cantError != 0)
             {
-                Console.WriteLine("Error: La cadena no es aceptada");
-                return false;
+                Console.WriteLine("SU CADENA POSEE ERRORES SEMÁNTICOS");
             }
             else
             {
-                Console.WriteLine("Cadena aceptada");
-                return true;
+                Console.WriteLine("CADENA ACEPTADA: NO POSEE ERRORES SEMÁNTICOS");
             }
         }
         private static int Action(ref Stack<int> Pila, ref Stack<Token> Simbolo, ref List<Token> Tokens, Dictionary<string, string> Estado)
@@ -69,14 +68,16 @@ namespace mimij
                 if (actions == string.Empty)
                 {
                     actions = Estado["e"];
-                    if (actions == string.Empty)
-                    {
-                        Console.WriteLine("El token {0} localizado en la linea {1} es incorrecto", Tokens.First().name, Tokens.First().line);
-                        error = true;
-                        cantError++;
-                        return 0;
-                    }
                     epsilon = true;
+                }
+                if (actions.Contains('/'))
+                {
+                    var actionsAux = actions.Split('/');
+                    var t1 = Tokens.ElementAt(0);
+                    var t2 = Tokens.ElementAt(1);
+                    var t3 = Tokens.ElementAt(2);
+                    actions = (t2.tipo == 6 && t3.name == "(") ? actionsAux[0] : actionsAux[1];
+                    actions = actions.Trim(' ');
                 }
                 if (actions[0] == 's')
                 {
@@ -97,18 +98,14 @@ namespace mimij
                     var cantidadRemover = producction[simbol.First()];
                     for (int i = 0; i < cantidadRemover; i++)
                     {
-                        //insertar cada token en la lista auxiliar para validar que no sea un token
                         Pila.Pop();
                         Auxiliar.Add(Simbolo.Pop());
                     }
-                    //al momento de realizar una reducción validar que no exista dicho token en la lista en caso la reducción sea de una variable
-                    Validar(actions);
-                    
-
-                    
-
                     var tokenAux = new Token(simbol.First(), 0, 0, 0, string.Empty, string.Empty, string.Empty);
                     Simbolo.Push(tokenAux);
+                    //al momento de realizar una reducción validar que no exista dicho token en la lista en caso la reducción sea de una variable
+                    Validar(actions);
+                    Auxiliar = new List<Token>();
                     reducction = 1;
                     return Pila.First();
                 }
@@ -216,93 +213,110 @@ namespace mimij
                     return true;
             }
         }
-
         private static void Validar(string redu)
         {
-            var encontrarIgual = new Token();
-            var identificador = new Token();
             switch (redu)
             {
                 case "r3":
-                    //se realizó una declaración de variable
-
+                    MétodosParaEncontrar(1);
+                    break;
+                case "r4":
                     break;
                 case "r6":
-
+                    MétodosParaEncontrar(1);
                     break;
                 case "r9":
-                    //verificar que lo que siga sea el dentificador
-                    if(Tokens[0].tipo==6)
-                    {
-                        if(Tokens[1].name==";")
-                        {
-                            //verificar si existe ese token dentro de la tabla simbolos
-                            identificador = Auxiliar.Find(x => x.tipo == 6);
-                            encontrarIgual = TablaSimbolos.Find(x=> x.name == identificador.name);
-                            if(encontrarIgual == null)
-                            {
-                                //no existe dicho identificador
-                                //añadirlo a la tabla
-                                TablaSimbolos.Add(Tokens[0]);
-                            }
-                            else
-                            {
-                                //indicar ese error y no añadirlo a la tabla
-                            }
-                        }
-                        else
-                        {
-
-                        }
-                    }
+                    tipo.Push("int");
                     break;
                 case "r10":
-                    //verificar que lo que siga sea el dentificador
-                    if (Tokens[0].tipo == 6)
-                    {
-                        if (Tokens[1].name == ";")
-                        {
-                            //allí si validar que exista el token
-                        }
-                    }
+                    tipo.Push("double");
                     break;
                 case "r11":
-                    //verificar que lo que siga sea el dentificador
-                    if (Tokens[0].tipo == 6)
-                    {
-                        if (Tokens[1].name == ";")
-                        {
-                            //allí si validar que exista el token
-                        }
-                    }
+                    tipo.Push("boolean");
                     break;
                 case "r12":
-                    //verificar que lo que siga sea el dentificador
-                    if (Tokens[0].tipo == 6)
-                    {
-                        if (Tokens[1].name == ";")
-                        {
-                            //allí si validar que exista el token
-                        }
-                    }
+                    tipo.Push("string");
                     break;
                 case "r14":
-                    //verificar que lo que siga sea el dentificador
-                    if (Tokens[0].tipo == 6)
+                    tipo.Push("ident");
+                    break;
+                case "r15":
+                    tipo.Push(tipo.Pop()+"[]");
+                    break;
+                case "r16":
+                    MétodosParaEncontrar(2);
+                    break;
+                case "r17":
+                    MétodosParaEncontrar(3);
+                    break;
+                case "r39":
+                    MétodosParaEncontrar(1);
+                    break;
+                case "r40":
+                    MétodosParaEncontrar(1);
+                    break;
+            }
+        }
+        private static void MétodosParaEncontrar(int numero)
+        {
+            switch(numero)
+            {
+                case 1:
+                    var type = tipo.Pop();
+                    var tok = Auxiliar[1];
+                    var Igual = TablaSimbolos.Find(X => X.name == tok.name);
+                    if (Igual == null)
                     {
-                        if (Tokens[1].name == ";")
-                        {
-                            //allí si validar que exista el token
-                        }
-                        else
-                        {
-
-                        }
+                        tok.tipoAS = type;
+                        TablaSimbolos.Add(tok);
+                    }
+                    else
+                    {
+                        cantError++;
+                        IndicarError(1, tok);
+                    }
+                    break;
+                case 2:
+                    type = tipo.Pop();
+                    tok = Auxiliar[2];
+                    Igual = TablaSimbolos.Find(X => X.name == tok.name);
+                    if (Igual == null)
+                    {
+                        tok.tipoAS = type;
+                        TablaSimbolos.Add(tok);
+                    }
+                    else
+                    {
+                        cantError++;
+                        IndicarError(1, tok);
+                    }
+                    break;
+                case 3:
+                    type = tipo.Pop();
+                    tok = Auxiliar[0];
+                    Igual = TablaSimbolos.Find(X => X.name == tok.name);
+                    if (Igual == null)
+                    {
+                        tok.tipoAS = type;
+                        TablaSimbolos.Add(tok);
+                    }
+                    else
+                    {
+                        cantError++;
+                        IndicarError(1, tok);
                     }
                     break;
             }
         }
-
+        private static void IndicarError(int valor, Token tok)
+        {
+            switch(valor)
+            {
+                case 1:
+                    Console.WriteLine($"**ERROR** EL TOKEN: {tok.name} LOCALIZADO EN LA LINEA: {tok.line} Y COLUMNAS: {tok.columnFirst} - {tok.columnEnd} YA SE ENCUENTRA DECLARADO");
+                    break;
+            }
+        }
         public void escrituraArchivo(string escritura)
         {
             using (var writer = new StreamWriter(Path.Combine(path, $"{Validation.txtName}_Semantico.out"), append: true))

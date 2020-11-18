@@ -146,7 +146,6 @@ namespace mimij
                     }
                     epsilon = true;
                 }
-                //validar el conflicto
                 if(actions.Contains('/'))
                 {
                     var actionsAux = actions.Split('/');
@@ -227,7 +226,6 @@ namespace mimij
                 default: return "e";
             }
         }
-
         private static bool EsTerminal(string Token)
         {
             switch(Token)
