@@ -13,6 +13,7 @@ namespace mimij
         public static List<Token> Auxiliar = new List<Token>();
         public static List<Token> Tokens = new List<Token>();
         public static Stack<string> tipo = new Stack<string>();
+        public static Stack<string> Stmt = new Stack<string>();
         public static string tipoS;
         public static int i = 0;
         static int reducction = 0;
@@ -103,7 +104,6 @@ namespace mimij
                     }
                     var tokenAux = new Token(simbol.First(), 0, 0, 0, string.Empty, string.Empty, string.Empty);
                     Simbolo.Push(tokenAux);
-                    //al momento de realizar una reducción validar que no exista dicho token en la lista en caso la reducción sea de una variable
                     Validar(actions);
                     Auxiliar = new List<Token>();
                     reducction = 1;
@@ -218,12 +218,13 @@ namespace mimij
             switch (redu)
             {
                 case "r3":
-                    MétodosParaEncontrar(1);
+                    MétodosParaEncontrar(1,1);
                     break;
                 case "r4":
+                   
                     break;
                 case "r6":
-                    MétodosParaEncontrar(1);
+                    MétodosParaEncontrar(1,1);
                     break;
                 case "r9":
                     tipo.Push("int");
@@ -244,26 +245,29 @@ namespace mimij
                     tipo.Push(tipo.Pop()+"[]");
                     break;
                 case "r16":
-                    MétodosParaEncontrar(2);
+                    MétodosParaEncontrar(1,2);
                     break;
                 case "r17":
-                    MétodosParaEncontrar(3);
+                    MétodosParaEncontrar(1,0);
                     break;
                 case "r39":
-                    MétodosParaEncontrar(1);
+                    MétodosParaEncontrar(1,1);
                     break;
                 case "r40":
-                    MétodosParaEncontrar(1);
+                    MétodosParaEncontrar(1,1);
+                    break;
+                case "r82":
+                    MétodosParaEncontrar(2,0);
                     break;
             }
         }
-        private static void MétodosParaEncontrar(int numero)
+        private static void MétodosParaEncontrar(int numero, int numero2)
         {
             switch(numero)
             {
                 case 1:
                     var type = tipo.Pop();
-                    var tok = Auxiliar[1];
+                    var tok = Auxiliar[numero2];
                     var Igual = TablaSimbolos.Find(X => X.name == tok.name);
                     if (Igual == null)
                     {
@@ -275,32 +279,12 @@ namespace mimij
                         cantError++;
                         IndicarError(1, tok);
                     }
-                    break;
+                    break;     
                 case 2:
-                    type = tipo.Pop();
-                    tok = Auxiliar[2];
+                    //esto es para el stmt de Expr de H -> ident
+                    tok = Auxiliar[numero2];
                     Igual = TablaSimbolos.Find(X => X.name == tok.name);
                     if (Igual == null)
-                    {
-                        tok.tipoAS = type;
-                        TablaSimbolos.Add(tok);
-                    }
-                    else
-                    {
-                        cantError++;
-                        IndicarError(1, tok);
-                    }
-                    break;
-                case 3:
-                    type = tipo.Pop();
-                    tok = Auxiliar[0];
-                    Igual = TablaSimbolos.Find(X => X.name == tok.name);
-                    if (Igual == null)
-                    {
-                        tok.tipoAS = type;
-                        TablaSimbolos.Add(tok);
-                    }
-                    else
                     {
                         cantError++;
                         IndicarError(1, tok);
