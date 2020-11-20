@@ -60,9 +60,9 @@ ExprX -> Expr
 Expr -> ident = A
 Expr -> A
 A -> B AX
-AX -> != B AX
+AX -> || B AX
 AX -> e
-B -> B || C
+B -> B != C
 B -> C
 C -> C > D
 C -> C >= D
