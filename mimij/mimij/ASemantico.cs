@@ -33,7 +33,7 @@ namespace mimij
             //simbolo
             var Simbolo = new Stack<Token>();
             //Entrada
-            var tokenAux = new Token("$", 0, 0, 0, string.Empty, string.Empty, string.Empty);
+            var tokenAux = new Token("$", 0, 0, 0, string.Empty, string.Empty, string.Empty, false, 0);
             Tokens.Add(tokenAux);
             var pos = 0;
             while (Tokens.Count() != 0)
@@ -99,7 +99,7 @@ namespace mimij
                         Pila.Pop();
                         Auxiliar.Add(Simbolo.Pop());
                     }
-                    var tokenAux = new Token(simbol.First(), 0, 0, 0, string.Empty, string.Empty, string.Empty);
+                    var tokenAux = new Token(simbol.First(), 0, 0, 0, string.Empty, string.Empty, string.Empty, false, 0);
                     Simbolo.Push(tokenAux);
                     Validar(actions);
                     Auxiliar = new List<Token>();
@@ -220,33 +220,38 @@ namespace mimij
                         MétodosParaEncontrar(1, 1);
                         break;
                     case "r4":
-                        MétodosParaEncontrar(3, 4);
-                        MetodosParaAmbitos(2);
                         if (retorno)
                         {
                             IndicarError(7, TablaSimbolos.Find(x => x.name == Auxiliar[4].name && x.subnivel == ambitoBase.First().ToString()), "");
                         }
+                        MetodosParaAmbitos(2);
+                        MétodosParaEncontrar(3, 4);
                         retorno = false;
                         break;
                     case "r5":
-                        MétodosParaEncontrar(3, 5);
-                        MetodosParaAmbitos(2);
-                        if (!retorno)
+                        //Aqui validamos el tipo de ambos
+                        if (retorno)
+                        {
+                            MétodosParaEncontrar(5, 1);
+                        }
+                        else
                         {
                             IndicarError(8, TablaSimbolos.Find(x => x.name == Auxiliar[4].name && x.subnivel == ambitoBase.First().ToString()), "");
                         }
+                        MetodosParaAmbitos(2);
+                        MétodosParaEncontrar(3, 5);
                         retorno = false;
                         break;
                     case "r6":
                         MétodosParaEncontrar(1, 1);
                         break;
                     case "r7":
-                        MétodosParaEncontrar(3, 7);
                         MetodosParaAmbitos(2);
+                        MétodosParaEncontrar(3, 7);
                         break;
                     case "r8":
-                        MétodosParaEncontrar(3, 8);
                         MetodosParaAmbitos(5);
+                        MétodosParaEncontrar(3, 8);
                         break;
                     case "r9":
                         tipo.Push("int");
@@ -276,29 +281,41 @@ namespace mimij
                         break;
                     case "r18":
                         MetodosParaAmbitos(3);
+                        MétodosParaEncontrar(18, 0);
                         break;
                     case "r19":
                         MetodosParaAmbitos(3);
+                        break;
+                    case "r22":
+                        MétodosParaEncontrar(20, Auxiliar.Count - 1);
+                        break;
+                    case "r23":
+                        MétodosParaEncontrar(20, 0);
                         break;
                     case "r26":
                         MétodosParaEncontrar(1, 1);
                         break;
                     case "r27":
-                        MétodosParaEncontrar(3, 27);
-                        MetodosParaAmbitos(2);
                         if (retorno)
                         {
                             IndicarError(7, TablaSimbolos.Find(x => x.name == Auxiliar[4].name && x.subnivel == ambitoBase.First().ToString()), "");
                         }
+                        MetodosParaAmbitos(2);
+                        MétodosParaEncontrar(3, 27);
                         retorno = false;
                         break;
                     case "r28":
-                        MétodosParaEncontrar(3, 28);
-                        MetodosParaAmbitos(2);
+                        //Aqui validamos el tipo de ambos
+                        if (retorno)
+                        {
+                            MétodosParaEncontrar(5, 1);
+                        }
                         if (!retorno)
                         {
-                            IndicarError(8, TablaSimbolos.Find(x => x.name == Auxiliar[4].name &&x.subnivel == ambitoBase.First().ToString()), "");
+                            IndicarError(8, TablaSimbolos.Find(x => x.name == Auxiliar[4].name && x.subnivel == ambitoBase.First().ToString()), "");
                         }
+                        MetodosParaAmbitos(2);
+                        MétodosParaEncontrar(3, 28);
                         retorno = false;
                         break;
                     case "r29":
@@ -311,12 +328,12 @@ namespace mimij
                         MetodosParaAmbitos(4);
                         break;
                     case "r32":
-                        MétodosParaEncontrar(3, 32);
                         MetodosParaAmbitos(2);
+                        MétodosParaEncontrar(3, 32);
                         break;
                     case "33":
-                        MétodosParaEncontrar(3, 33);
                         MetodosParaAmbitos(2);
+                        MétodosParaEncontrar(3, 33);
                         break;
                     case "r39":
                         MétodosParaEncontrar(1, 1);
@@ -325,7 +342,7 @@ namespace mimij
                         MétodosParaEncontrar(1, 1);
                         break;
                     case "r41":
-                        variables = new Stack<Token>();
+                        // variables = new Stack<Token>();
                         error = false;
                         break;
                     case "r48":
@@ -333,6 +350,9 @@ namespace mimij
                         break;
                     case "r59":
                         MétodosParaEncontrar(59, 0);
+                        break;
+                    case "r60":
+                        variables.Pop();
                         break;
                     case "r62":
                         MétodosParaEncontrar(62, 0);
@@ -398,6 +418,7 @@ namespace mimij
         private static bool aumento = false;
         private static bool aumentoSpecial = false;
         private static Dictionary<int, string> nombreAmbitos = new Dictionary<int, string>{ {0, "root" } };
+        private static bool parameto = false;
         private static void MetodosParaAmbitos(int caso)
         {
             switch (caso)
@@ -409,6 +430,7 @@ namespace mimij
                         ambito++;
                         ambitoBase.Push(ambito);
                     }
+                    parameto = true;
                     break;
                 case 2:
                     nombreAmbitos.Add(ambitoBase.Pop(), Auxiliar[Auxiliar.Count - 2].name);
@@ -454,6 +476,8 @@ namespace mimij
                     {
                         tok.tipoAS = type;
                         tok.subnivel = ambitoBase.Peek().ToString();
+                        tok.parametro = parameto;
+                        parameto = false;
                         TablaSimbolos.Add(tok);
                     }
                     else
@@ -464,32 +488,84 @@ namespace mimij
                     break;
                 case 3:
                     var t = Auxiliar[Auxiliar.Count - 2];
-                    if (numero2 == 4 || numero2 == 27)
-                    {
-                        t.tipoAS = "Process";
-                    }
-                    else if (numero2 == 5 || numero2 == 28)
-                    {
-                        t.tipoAS = "Function";
-                    }
-                    else if (numero2 == 7)
-                    {
-                        t.tipoAS = "Class";
-                    }
-                    else if (numero2 == 32)
-                    {
-                        t.tipoAS = "IProcess";
-                    }
-                    else if (numero2 == 33)
-                    {
-                        t.tipoAS = "Ifunction";
-                    }
-                    else if (numero2 == 8)
-                    {
-                        t.tipoAS = "Interface";
-                    }
                     t.subnivel = ambitoBase.Peek().ToString();
-                    TablaSimbolos.Add(t);
+                    Igual = TablaSimbolos.Find(X => X.name == t.name && X.subnivel == t.subnivel);
+                    if (Igual == null)
+                    {
+                        if (numero2 == 4 || numero2 == 27)
+                        {
+                            t.tipoAS = "Process";
+                        }
+                        else if (numero2 == 5 || numero2 == 28)
+                        {
+                            t.tipoAS = "Function";
+                        }
+                        else if (numero2 == 7)
+                        {
+                            t.tipoAS = "Class";
+                        }
+                        else if (numero2 == 32)
+                        {
+                            t.tipoAS = "IProcess";
+                        }
+                        else if (numero2 == 33)
+                        {
+                            t.tipoAS = "Ifunction";
+                        }
+                        else if (numero2 == 8)
+                        {
+                            t.tipoAS = "Interface";
+                        }
+                        TablaSimbolos.Add(t);
+                    }
+                    else
+                    {
+                        cantError++;
+                        IndicarError(1, t, "");
+                    }
+                    break;
+                case 5:
+                    var t1 = variables.Peek();
+                    var t2 = tipo.Pop();
+                    var t3 = string.Empty;
+                    switch (t1.tipo)
+                    {
+                        case 2:
+                            t3 = "boolean";
+                            break;
+                        case 3:
+                            t3 = "int";
+                            break;
+                        case 4:
+                            t3 = "int";
+                            break;
+                        case 5:
+                            t3 = "double";
+                            break;
+                        case 7:
+                            t3 = "ident";
+                            break;
+                        case 8:
+                            t3 = "string";
+                            break;
+                    }
+                    if (t2 != t3)
+                    {
+                        IndicarError(12, Auxiliar[numero2], "");
+                    }
+                    break;
+                case 18:
+                    tok = Auxiliar[0];
+                    if (TablaSimbolos.Find(X => X.name == tok.name && X.tipoAS == "Class") == null)
+                    {
+                        IndicarError(9, tok, "");
+                    }
+                    break;
+                case 20:
+                    if (TablaSimbolos.Find(X => X.name == Auxiliar[numero2].name && X.tipoAS == "Interface") == null)
+                    {
+                        IndicarError(10, Auxiliar[numero2], "");
+                    }
                     break;
                 case 59:
                     tok = Auxiliar[2];
@@ -1740,6 +1816,15 @@ namespace mimij
                     break;
                 case 8:
                     Console.WriteLine($"**ERROR** EL TOKEN: {tok.name} LOCALIZADO EN LA LINEA: {tok.line} Y COLUMNAS: {tok.columnFirst} - {tok.columnEnd} LA FUNCION NO POSEE UNA SENTENCIA RETURN");
+                    break;
+                case 9:
+                    Console.WriteLine($"**ERROR** EL TOKEN: {tok.name} LOCALIZADO EN LA LINEA: {tok.line} Y COLUMNAS: {tok.columnFirst} - {tok.columnEnd} LA CLASE DEL EXTENDS NO EXISTE");
+                    break;
+                case 10:
+                    Console.WriteLine($"**ERROR** EL TOKEN: {tok.name} LOCALIZADO EN LA LINEA: {tok.line} Y COLUMNAS: {tok.columnFirst} - {tok.columnEnd} LA CLASE DEL IMPLEMENTS NO EXISTE");
+                    break;
+                case 11:
+                    Console.WriteLine($"**ERROR** EL TOKEN: {tok.name} LOCALIZADO EN LA LINEA: {tok.line} Y COLUMNAS: {tok.columnFirst} - {tok.columnEnd} EL RETURN NO COINCIDE CON EL TIPO DE FUNCION");
                     break;
             }
         }

@@ -74,7 +74,7 @@ namespace mimij
             //simbolo
             var Simbolo = new Stack<Token>();
             //Entrada
-            var tokenAux = new Token("$", 0, 0, 0, string.Empty,string.Empty, string.Empty);
+            var tokenAux = new Token("$", 0, 0, 0, string.Empty,string.Empty, string.Empty, false, 0);
             Tokens.Enqueue(tokenAux);
             var pos = 0;
             while (Tokens.Count() != 0)
@@ -177,7 +177,7 @@ namespace mimij
                         Pila.Pop();
                         Simbolo.Pop();
                     }
-                    var tokenAux = new Token(simbol.First(), 0, 0, 0, string.Empty,string.Empty, string.Empty);
+                    var tokenAux = new Token(simbol.First(), 0, 0, 0, string.Empty,string.Empty, string.Empty, false, 0);
                     Simbolo.Push(tokenAux);
                     reducction = 1;
                     return Pila.First();

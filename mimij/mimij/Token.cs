@@ -17,7 +17,9 @@ namespace mimij
         public string valor { get; set; }
         public string tipoAS { get; set; }
         public string subnivel { get; set; }
-        public Token(string Name, int Line, int Column, int Tipo, string Valor, string TipoAS, string subNivel)
+        public bool parametro { get; set; }
+        public int idNombre { get; set; }
+        public Token(string Name, int Line, int Column, int Tipo, string Valor, string TipoAS, string subNivel, bool Parametro, int id)
         {
             name = Name;
             line = Line;
@@ -27,6 +29,8 @@ namespace mimij
             valor = Valor;
             tipoAS = TipoAS;
             subnivel = subNivel;
+            parametro = Parametro;
+            idNombre = id;
         }
 
         public Token()
