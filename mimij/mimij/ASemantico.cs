@@ -224,7 +224,7 @@ namespace mimij
                     case "r4":
                         if (retorno)
                         {
-                            IndicarError(7, TablaSimbolos.Find(x => x.name == Auxiliar[4].name && x.subnivel == ambitoBase.First().ToString()), "");
+                            IndicarError(7, Auxiliar[4], "");
                         }
                         MetodosParaAmbitos(2);
                         MétodosParaEncontrar(3, 4);
@@ -237,7 +237,7 @@ namespace mimij
                         }
                         else
                         {
-                            IndicarError(8, TablaSimbolos.Find(x => x.name == Auxiliar[4].name && x.subnivel == ambitoBase.First().ToString()), "");
+                            IndicarError(8,  Auxiliar[4], "");
                         }
                         MetodosParaAmbitos(2);
                         MétodosParaEncontrar(3, 5);
@@ -299,7 +299,7 @@ namespace mimij
                     case "r27":
                         if (retorno)
                         {
-                            IndicarError(7, TablaSimbolos.Find(x => x.name == Auxiliar[4].name && x.subnivel == ambitoBase.First().ToString()), "");
+                            IndicarError(7,  Auxiliar[4], "");
                         }
                         MetodosParaAmbitos(2);
                         MétodosParaEncontrar(3, 27);
@@ -313,7 +313,7 @@ namespace mimij
                         }
                         if (!retorno)
                         {
-                            IndicarError(8, TablaSimbolos.Find(x => x.name == Auxiliar[4].name && x.subnivel == ambitoBase.First().ToString()), "");
+                            IndicarError(8, Auxiliar[4], "");
                         }
                         MetodosParaAmbitos(2);
                         MétodosParaEncontrar(3, 28);
