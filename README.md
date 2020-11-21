@@ -32,3 +32,14 @@ Analizador Sintáctico.
 	2) El segundo caso es si en alguna parte de la cadena viene un token incorrecto o hace falta, de la misma forma que el anterior, se omite cada token que proviene de la misma linea y se prosigue con el análisis de la linea siguiente.
 
 	3) El ultimo caso sería de si viene un token incorrecto o de caso omiso al final, se procede a limpiar tanto la Pila como los Simbolos indicando que todo lo anterior no se le podrá realizar las reducciones correctas e incorrectas y continuar con el análisis en caso hacen falta tokens por analizar.
+
+
+# Fase 3
+	En esta fase se le agregó al compilador el análisis Semántico. Para dicho análisis se le agregaron atributos tanto heredados como sintetizados a la gramática. En esta fase se analisa el sentido de la gramática.
+
+Atributos a Utilizar	Nombre				Función
+Heredado		.TipoAS				Almacena el tipo del identificador, ya sea un tipo entero, booleano, cadena, etc.
+Sintetizado		.Valor				Almacena el valor de las operaciones que se realizan dentro de las expresiones
+Sintetizado		.SubNivel			Almacena el valor del Ámbito en el que se encuentra el token
+
+ 	En este caso los Errores se manejaron de la siguiente manera. Si se realiza una operación o una asignación que no sean del mismo tipo, entonces se le notificará al usuario que en dicha linea los tokens son incorrectos y se omite dicha linea, por lo que si es una asignación no se le ingresará el resultado al token correspondiente. En caso contrario si la expresión se encuentra correcta, el resutlado se almacenaría en dicho identificador.
