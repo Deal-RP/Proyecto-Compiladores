@@ -379,6 +379,9 @@ namespace mimij
                     case "r75":
                         MétodosParaEncontrar(75, 0);
                         break;
+                    case "r77":
+                        MétodosParaEncontrar(77, 0);
+                        break;
                     case "r82":
                         var Igual = TablaSimbolos.Find(x => x.name == Auxiliar[0].name&& x.subnivel == ambitoBase.First().ToString());
                         if(Igual!=null)
@@ -467,6 +470,7 @@ namespace mimij
             var resultado2 = false;
             var token2 = new Token();
             var valor = string.Empty;
+            var valor2 = string.Empty;
             switch (numero)
             {
                 case 1:
@@ -589,7 +593,7 @@ namespace mimij
                                 else
                                 {
                                     cantError++;
-                                    IndicarError(4, tok, "");
+                                    IndicarError(6, tok, "");
                                     error = true;
                                 }
                             }
@@ -609,7 +613,7 @@ namespace mimij
                         else if ((tok1.tipo == 2|| tok1.tipo == 3) && tok.tipoAS == "int")
                         {
                             TablaSimbolos.Remove(Igual);
-                            Igual.valor = tok1.valor;
+                            Igual.valor = Convert.ToInt32(Convert.ToDouble((tok1.valor))).ToString(); 
                             TablaSimbolos.Add(Igual);
                         }
                         else if ((tok1.tipo == 3 || tok1.tipo == 4 || tok1.tipo == 2) && tok.tipoAS == "double")
@@ -819,20 +823,203 @@ namespace mimij
                     {
                         if(tok1.tipo == tok.tipo && tok.tipo==1)
                         {
-                            //para los booleanos
+                            valor = tok.valor;
+                            valor2 = tok1.valor;
+                            resultado2 = (valor != valor2);
+                            token1 = tok1;
+                            token1.valor = (resultado2) ? "true" : "false";
+                            token1.name = (resultado2) ? "true" : "false";
+                            token1.tipo = 1;
+                            variables.Push(token1);
+                        }
+                        else if (tok1.tipo == tok.tipo && tok.tipo == 7)
+                        {
+                            valor = tok.valor;
+                            valor2 = tok1.valor;
+                            resultado2 = (valor != valor2);
+                            token1 = tok1;
+                            token1.valor = (resultado2) ? "true" : "false";
+                            token1.name = (resultado2) ? "true" : "false";
+                            token1.tipo = 1;
+                            variables.Push(token1);
+                        }
+                        else if ((tok1.tipo == 2 || tok1.tipo == 3 || tok1.tipo == 4) && (tok.tipo == 2 || tok.tipo == 3 || tok.tipo == 4))
+                        {
+                            valorAux = (tok.valor != "") ? Convert.ToDouble(tok.valor) : 0;
+                            valorAux2 = (tok1.valor != "") ? Convert.ToDouble(tok1.valor) : 0;
+                            resultado2 = (valorAux2 != valorAux);
+                            token1 = tok1;
+                            token1.valor = (resultado2)?"true":"false";
+                            token1.name = (resultado2) ? "true" : "false";
+                            token1.tipo = 1;
+                            variables.Push(token1);
+                        }
+                        else
+                        {
+                            cantError++;
+                            error = true;
+                            IndicarError(12, tok, "");
+                            IndicarError(12, tok1, "");
                         }
                     }
                     else if (tok1.tipo != 6 && tok.tipo == 6)
                     {
-                         
+                         //validar que exista el identificador
+                        Igual = TablaSimbolos.Find(X => X.name == tok.name && X.subnivel == ambitoBase.First().ToString());
+                        if(Igual != null)
+                        {
+                            if (Igual.tipoAS =="boolean" && tok1.tipo==1)
+                            {
+                                valor = tok.valor;
+                                valor2 = tok1.valor;
+                                resultado2 = (valor != valor2);
+                                token1 = tok1;
+                                token1.valor = (resultado2) ? "true" : "false";
+                                token1.name = (resultado2) ? "true" : "false";
+                                token1.tipo = 1;
+                                variables.Push(token1);
+                            }
+                            else if (Igual.tipoAS == "string" && tok1.tipo == 7)
+                            {
+                                valor = tok.valor;
+                                valor2 = tok1.valor;
+                                resultado2 = (valor != valor2);
+                                token1 = tok1;
+                                token1.valor = (resultado2) ? "true" : "false";
+                                token1.name = (resultado2) ? "true" : "false";
+                                token1.tipo = 1;
+                                variables.Push(token1);
+                            }
+                            else if ((Igual.tipoAS == "double"|| Igual.tipoAS == "int") && (tok1.tipo == 2|| tok1.tipo == 3|| tok1.tipo == 4))
+                            {
+                                valorAux = (tok.valor != "") ? Convert.ToDouble(tok.valor) : 0;
+                                valorAux2 = (tok1.valor != "") ? Convert.ToDouble(tok1.valor) : 0;
+                                resultado2 = (valorAux2 != valorAux);
+                                token1 = tok1;
+                                token1.valor = (resultado2) ? "true" : "false";
+                                token1.name = (resultado2) ? "true" : "false";
+                                token1.tipo = 1;
+                                variables.Push(token1);
+                            }
+                            else
+                            {
+                                cantError++;
+                                error = true;
+                                IndicarError(12, tok, "");
+                                IndicarError(12, tok1, "");
+                            }
+                        }
+                        else
+                        {
+                            cantError++;
+                            IndicarError(4, tok, "");
+                            error = true;
+                        }
                     }
                     else if (tok1.tipo == 6 && tok.tipo != 6)
                     {
-                        
+                        Igual = TablaSimbolos.Find(X => X.name == tok1.name && X.subnivel == ambitoBase.First().ToString());
+                        if (Igual != null)
+                        {
+                            if (Igual.tipoAS == "boolean" && tok.tipo == 1)
+                            {
+                                valor = tok.valor;
+                                valor2 = tok1.valor;
+                                resultado2 = (valor != valor2);
+                                token1 = tok1;
+                                token1.valor = (resultado2) ? "true" : "false";
+                                token1.name = (resultado2) ? "true" : "false";
+                                token1.tipo = 1;
+                                variables.Push(token1);
+                            }
+                            else if (Igual.tipoAS == "string" && tok.tipo == 7)
+                            {
+                                valor = tok.valor;
+                                valor2 = tok1.valor;
+                                resultado2 = (valor != valor2);
+                                token1 = tok1;
+                                token1.valor = (resultado2) ? "true" : "false";
+                                token1.name = (resultado2) ? "true" : "false";
+                                token1.tipo = 1;
+                                variables.Push(token1);
+                            }
+                            else if ((Igual.tipoAS == "double" || Igual.tipoAS == "int") && (tok.tipo == 2 || tok.tipo == 3 || tok.tipo == 4))
+                            {
+                                valorAux = (tok.valor != "") ? Convert.ToDouble(tok.valor) : 0;
+                                valorAux2 = (tok1.valor != "") ? Convert.ToDouble(tok1.valor) : 0;
+                                resultado2 = (valorAux2 != valorAux);
+                                token1 = tok1;
+                                token1.valor = (resultado2) ? "true" : "false";
+                                token1.name = (resultado2) ? "true" : "false";
+                                token1.tipo = 1;
+                                variables.Push(token1);
+                            }
+                            else
+                            {
+                                cantError++;
+                                error = true;
+                                IndicarError(12, tok, "");
+                                IndicarError(12, tok1, "");
+                            }
+                        }
+                        else
+                        {
+                            cantError++;
+                            IndicarError(4, tok1, "");
+                            error = true;
+                        }
                     }
                     else if (tok1.tipo == 6 && tok.tipo == 6)
                     {
-                        
+                        Igual = TablaSimbolos.Find(X => X.name == tok.name && X.subnivel == ambitoBase.First().ToString());
+                        if (Igual != null)
+                        {
+                            var Igual2 = TablaSimbolos.Find(X => X.name == tok1.name && X.subnivel == ambitoBase.First().ToString());
+                            if (Igual2 == null)
+                            {
+                                if(Igual.tipoAS == Igual2.tipoAS && (Igual.tipoAS == "string" || Igual.tipoAS == "boolean"))
+                                {
+                                    valor = tok.valor;
+                                    valor2 = tok1.valor;
+                                    resultado2 = (valor != valor2);
+                                    token1 = tok1;
+                                    token1.valor = (resultado2) ? "true" : "false";
+                                    token1.name = (resultado2) ? "true" : "false";
+                                    token1.tipo = 1;
+                                    variables.Push(token1);
+                                }
+                                else if((Igual.tipoAS == "int"|| Igual.tipoAS=="double")&& (Igual2.tipoAS == "int" || Igual2.tipoAS == "double"))
+                                {
+                                    valorAux = (tok.valor != "") ? Convert.ToDouble(tok.valor) : 0;
+                                    valorAux2 = (tok1.valor != "") ? Convert.ToDouble(tok1.valor) : 0;
+                                    resultado2 = (valorAux2 != valorAux);
+                                    token1 = tok1;
+                                    token1.valor = (resultado2) ? "true" : "false";
+                                    token1.name = (resultado2) ? "true" : "false";
+                                    token1.tipo = 1;
+                                    variables.Push(token1);
+                                }
+                                else
+                                {
+                                    cantError++;
+                                    error = true;
+                                    IndicarError(12, tok, "");
+                                    IndicarError(12, tok1, "");
+                                }
+                            }
+                            else
+                            {
+                                cantError++;
+                                IndicarError(4, tok1, "");
+                                error = true;
+                            }
+                        }
+                        else
+                        {
+                            cantError++;
+                            IndicarError(4, tok, "");
+                            error = true;
+                        }
                     }
                     break;
                 case 66:
@@ -1809,6 +1996,88 @@ namespace mimij
                         }
                     }
                     break;
+                case 77:
+                    tok = Auxiliar[2];
+                    tok1 = variables.First();
+                    Igual = TablaSimbolos.Find(X => X.name == tok.name && (X.subnivel == ambitoBase.First().ToString() ||X.subnivel == "0"));
+                    if (Igual != null)
+                    {
+                        tok = Igual;
+                        if (tok1.tipo == 6)
+                        {
+                            var Igual2 = TablaSimbolos.Find(x => x.name == tok1.name);
+                            if (Igual2 != null)
+                            {
+                                if (Igual.tipoAS == Igual2.tipoAS || (Igual.tipoAS == "double" && Igual2.tipoAS == "int"))
+                                {
+                                    TablaSimbolos.Remove(Igual);
+                                    Igual.valor = tok1.valor;
+                                    TablaSimbolos.Add(Igual);
+                                }
+                                else
+                                {
+                                    cantError++;
+                                    IndicarError(4, tok, "");
+                                    error = true;
+                                }
+                            }
+                            else
+                            {
+                                cantError++;
+                                IndicarError(4, tok1, "");
+                                error = true;
+                            }
+                        }
+                        else if (tok1.tipo == 1 && tok.tipoAS == "boolean")
+                        {
+                            TablaSimbolos.Remove(Igual);
+                            Igual.valor = tok1.valor;
+                            TablaSimbolos.Add(Igual);
+                        }
+                        else if ((tok1.tipo == 2 || tok1.tipo == 3) && tok.tipoAS == "int")
+                        {
+                            TablaSimbolos.Remove(Igual);
+                            Igual.valor = tok1.valor;
+                            TablaSimbolos.Add(Igual);
+                        }
+                        else if ((tok1.tipo == 3 || tok1.tipo == 4 || tok1.tipo == 2) && tok.tipoAS == "double")
+                        {
+                            TablaSimbolos.Remove(Igual);
+                            Igual.valor = tok1.valor;
+                            TablaSimbolos.Add(Igual);
+                        }
+                        else if (tok1.tipo == 7 && tok.tipoAS == "string")
+                        {
+                            TablaSimbolos.Remove(Igual);
+                            Igual.valor = tok1.valor;
+                            TablaSimbolos.Add(Igual);
+                        }
+                        else if (tok1.valor == "null")
+                        {
+                            TablaSimbolos.Remove(Igual);
+                            Igual.valor = tok1.valor;
+                            TablaSimbolos.Add(Igual);
+                        }
+                        else if (tok1.valor == "new")
+                        {
+                            TablaSimbolos.Remove(Igual);
+                            Igual.valor = string.Empty;
+                            TablaSimbolos.Add(Igual);
+                        }
+                        else
+                        {
+                            cantError++;
+                            IndicarError(6, tok, "=");
+                            error = true;
+                        }
+                    }
+                    else
+                    {
+                        cantError++;
+                        IndicarError(4, tok, "");
+                        error = true;
+                    }
+                    break;
             }
         }
         private static void IndicarError(int num, Token tok, string toke)
@@ -1831,7 +2100,7 @@ namespace mimij
                     Console.WriteLine($"**ERROR** EL TOKEN: {tok.name} LOCALIZADO EN LA LINEA: {tok.line} Y COLUMNAS: {tok.columnFirst} - {tok.columnEnd} ESTA TRATANDO DE REALIZAR UNA DIVISIÓN ENTRE 0");
                     break;
                 case 6:
-                    Console.WriteLine($"**ERROR** EL TOKEN: {tok.name} LOCALIZADO EN LA LINEA: {tok.line} Y COLUMNAS: {tok.columnFirst} - {tok.columnEnd} NO SE LE PUEDE REALIZAR DICHA ASIGNACIÓN");
+                    Console.WriteLine($"**ERROR** EL TOKEN: {tok.name} LOCALIZADO EN LA LINEA: {tok.line} Y COLUMNAS: {tok.columnFirst} - {tok.columnEnd} NO SE LE PUEDE REALIZAR DICHA ASIGNACIÓN DEBIDO A QUE LOS TIPOS DE TOKENS SON DIFERENTES");
                     break;
                 case 7:
                     Console.WriteLine($"**ERROR** EL TOKEN: {tok.name} LOCALIZADO EN LA LINEA: {tok.line} Y COLUMNAS: {tok.columnFirst} - {tok.columnEnd} EL PROCEDIMIENTO POSEE UNA SENTENCIA RETURN INVALIDA");
@@ -1847,6 +2116,9 @@ namespace mimij
                     break;
                 case 11:
                     Console.WriteLine($"**ERROR** EL TOKEN: {tok.name} LOCALIZADO EN LA LINEA: {tok.line} Y COLUMNAS: {tok.columnFirst} - {tok.columnEnd} EL RETURN NO COINCIDE CON EL TIPO DE FUNCION");
+                    break;
+                case 12:
+                    Console.WriteLine($"**ERROR** EL TOKEN: {tok.name} LOCALIZADO EN LA LINEA: {tok.line} Y COLUMNAS: {tok.columnFirst} - {tok.columnEnd} NO PUEDE REALIZAR LA COMPARACIÓN !=");
                     break;
             }
         }
