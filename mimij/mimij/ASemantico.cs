@@ -229,7 +229,6 @@ namespace mimij
                         retorno = false;
                         break;
                     case "r5":
-                        //Aqui validamos el tipo de ambos
                         if (retorno)
                         {
                             MétodosParaEncontrar(5, 1);
@@ -342,7 +341,6 @@ namespace mimij
                         MétodosParaEncontrar(1, 1);
                         break;
                     case "r41":
-                        // variables = new Stack<Token>();
                         error = false;
                         break;
                     case "r48":
@@ -352,7 +350,7 @@ namespace mimij
                         MétodosParaEncontrar(59, 0);
                         break;
                     case "r60":
-                        variables.Pop();
+                        // variables.Pop();
                         break;
                     case "r62":
                         MétodosParaEncontrar(62, 0);
@@ -365,6 +363,9 @@ namespace mimij
                         break;
                     case "r67":
                         MétodosParaEncontrar(67, 0);
+                        break;
+                    case "r69":
+                        MétodosParaEncontrar(69, 0);
                         break;
                     case "r71":
                         MétodosParaEncontrar(71, 0);
@@ -569,7 +570,7 @@ namespace mimij
                     break;
                 case 59:
                     tok = Auxiliar[2];
-                    var tok1 = variables.Pop();
+                    var tok1 = variables.First();
                     Igual = TablaSimbolos.Find(X => X.name == tok.name && X.subnivel == ambitoBase.First().ToString());
                     if (Igual != null)
                     {
@@ -605,7 +606,7 @@ namespace mimij
                             Igual.valor = tok1.valor;
                             TablaSimbolos.Add(Igual);
                         }
-                        else if (tok1.tipo == 2 && tok.tipoAS == "int")
+                        else if ((tok1.tipo == 2|| tok1.tipo == 3) && tok.tipoAS == "int")
                         {
                             TablaSimbolos.Remove(Igual);
                             Igual.valor = tok1.valor;
@@ -650,9 +651,6 @@ namespace mimij
                     }
                     break;
                 case 62:
-                    Console.WriteLine("hola");
-                    break;
-                case 64:
                     tok = variables.Pop();
                     tok1 = variables.Pop();
                     var token1 = tok;
@@ -811,6 +809,30 @@ namespace mimij
                             IndicarError(4, tok, "||");
                             error = true;
                         }
+                    }
+                    break;
+                case 64:
+                    tok = variables.Pop();
+                    tok1 = variables.Pop();
+                    token1 = tok;
+                    if (tok1.tipo != 6 && tok.tipo != 6)
+                    {
+                        if(tok1.tipo == tok.tipo && tok.tipo==1)
+                        {
+                            //para los booleanos
+                        }
+                    }
+                    else if (tok1.tipo != 6 && tok.tipo == 6)
+                    {
+                         
+                    }
+                    else if (tok1.tipo == 6 && tok.tipo != 6)
+                    {
+                        
+                    }
+                    else if (tok1.tipo == 6 && tok.tipo == 6)
+                    {
+                        
                     }
                     break;
                 case 66:
