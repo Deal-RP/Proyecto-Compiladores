@@ -42,4 +42,6 @@ Heredado		.TipoAS				Almacena el tipo del identificador, ya sea un tipo entero, 
 Sintetizado		.Valor				Almacena el valor de las operaciones que se realizan dentro de las expresiones
 Sintetizado		.SubNivel			Almacena el valor del Ámbito en el que se encuentra el token
 
+	A la tabla de símbolos se le da mantenimiento cada vez que se realiza una Expresión o ingresa a un nuevo ámbito donde se reconocerán nuevos tokens para ingresar.
+
  	En este caso los Errores se manejaron de la siguiente manera. Si se realiza una operación o una asignación que no sean del mismo tipo, entonces se le notificará al usuario que en dicha linea los tokens son incorrectos y se omite dicha linea, por lo que si es una asignación no se le ingresará el resultado al token correspondiente. En caso contrario si la expresión se encuentra correcta, el resutlado se almacenaría en dicho identificador.
