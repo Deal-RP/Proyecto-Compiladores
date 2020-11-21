@@ -23,13 +23,14 @@ namespace mimij
         public static string path;
         public static int cantError = 0;
 
-        public static void Parse(string Path)
+        public static void Parse()
         {
-            path = Path;
+            path = Directory.GetCurrentDirectory();
             //pila
             var Pila = new Stack<int>();
             Pila.Push(0);
             ambitoBase.Push(0);
+            idBase.Push(0);
             //simbolo
             var Simbolo = new Stack<Token>();
             //Entrada
@@ -53,6 +54,7 @@ namespace mimij
             {
                 Console.WriteLine("CADENA ACEPTADA: NO POSEE ERRORES SEMÁNTICOS");
             }
+            escrituraArchivo();
         }
         private static int Action(ref Stack<int> Pila, ref Stack<Token> Simbolo, ref List<Token> Tokens, Dictionary<string, string> Estado)
         {
@@ -416,6 +418,7 @@ namespace mimij
         }
         private static int ambito = 0;
         private static Stack<int> ambitoBase = new Stack<int>();
+        private static Stack<int> idBase = new Stack<int>();
         private static bool aumento = false;
         private static bool aumentoSpecial = false;
         private static Dictionary<int, string> nombreAmbitos = new Dictionary<int, string>{ {0, "root" } };
@@ -430,6 +433,7 @@ namespace mimij
                         aumento = true;
                         ambito++;
                         ambitoBase.Push(ambito);
+                        idBase.Push(ambito);
                     }
                     parameto = true;
                     break;
@@ -440,6 +444,7 @@ namespace mimij
                 case 3:
                     ambito++;
                     ambitoBase.Push(ambito);
+                    idBase.Push(ambito);
                     break;
                 case 4:
                     if (!aumentoSpecial)
@@ -447,13 +452,12 @@ namespace mimij
                         aumentoSpecial = true;
                         ambito++;
                         ambitoBase.Push(ambito);
+                        idBase.Push(ambito);
                     }
                     break;
                 case 5:
                     nombreAmbitos.Add(ambitoBase.Pop(), Auxiliar[Auxiliar.Count - 2].name);
                     aumentoSpecial = false;
-                    break;
-                default:
                     break;
             }
         }
@@ -477,6 +481,7 @@ namespace mimij
                     {
                         tok.tipoAS = type;
                         tok.subnivel = ambitoBase.Peek().ToString();
+                        tok.idNombre = ambitoBase.Peek();
                         tok.parametro = parameto;
                         parameto = false;
                         TablaSimbolos.Add(tok);
@@ -517,6 +522,8 @@ namespace mimij
                         {
                             t.tipoAS = "Interface";
                         }
+                        t.idNombre = Convert.ToInt32(t.subnivel);
+                        idBase.Pop();
                         TablaSimbolos.Add(t);
                     }
                     else
@@ -1850,11 +1857,22 @@ namespace mimij
                     break;
             }
         }
-        public void escrituraArchivo(string escritura)
+        public static void escrituraArchivo()
         {
-            using (var writer = new StreamWriter(Path.Combine(path, $"{Validation.txtName}_Semantico.out"), append: true))
+            using (var writer = new StreamWriter(Path.Combine(path, $"{Validation.txtName}_Semantico.out")))
             {
-                writer.WriteLine(escritura);
+                foreach (var Simbolo in TablaSimbolos)
+                {
+                    var tipoTemp = Simbolo.parametro ? $"Parametro/{Simbolo.tipoAS}" : Simbolo.tipoAS;
+                    var locationTemp = string.Format("Linea: {0, -5} Columna: {1, -5} - {2, 5}", Simbolo.line, Simbolo.columnFirst, Simbolo.columnEnd);
+                    writer.WriteLine($"//////////////////////////////////////////////////////////////////////////////////////");
+                    writer.WriteLine($"Nombre: {Simbolo.name}");
+                    writer.WriteLine($"Tipo: {tipoTemp}");
+                    writer.WriteLine($"Ambito: {Simbolo.subnivel}");
+                    writer.WriteLine($"Nombre Ambito: {nombreAmbitos[Simbolo.idNombre]}");
+                    writer.WriteLine($"Locacion: {locationTemp}");
+                }
+                writer.WriteLine($"//////////////////////////////////////////////////////////////////////////////////////");
             }
         }
     }
