@@ -2142,6 +2142,7 @@ namespace mimij
                     writer.WriteLine($"Tipo: {tipoTemp}");
                     writer.WriteLine($"Ambito: {Simbolo.subnivel}");
                     writer.WriteLine($"Nombre Ambito: {nombreAmbitos[Simbolo.idNombre]}");
+                    writer.WriteLine($"Valor: {Simbolo.valor}");
                     writer.WriteLine($"Locacion: {locationTemp}");
                 }
                 writer.WriteLine($"//////////////////////////////////////////////////////////////////////////////////////");
