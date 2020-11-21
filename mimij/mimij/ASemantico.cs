@@ -224,6 +224,7 @@ namespace mimij
                     case "r4":
                         if (retorno)
                         {
+                            cantError++;
                             IndicarError(7, Auxiliar[4], "");
                         }
                         MetodosParaAmbitos(2);
@@ -233,10 +234,12 @@ namespace mimij
                     case "r5":
                         if (retorno)
                         {
+                            cantError++;
                             MétodosParaEncontrar(5, 1);
                         }
                         else
                         {
+                            cantError++;
                             IndicarError(8,  Auxiliar[4], "");
                         }
                         MetodosParaAmbitos(2);
@@ -299,6 +302,7 @@ namespace mimij
                     case "r27":
                         if (retorno)
                         {
+                            cantError++;
                             IndicarError(7,  Auxiliar[4], "");
                         }
                         MetodosParaAmbitos(2);
@@ -313,6 +317,7 @@ namespace mimij
                         }
                         if (!retorno)
                         {
+                            cantError++;
                             IndicarError(8, Auxiliar[4], "");
                         }
                         MetodosParaAmbitos(2);
